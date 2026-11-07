@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crear cuenta · ReservaEspacios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <div class="auth">
+    <!-- Panel informativo (se oculta en pantallas pequeñas) -->
+    <aside class="auth__aside">
+      <a class="brand" href="index.html">
+        <span class="brand__mark">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        </span>
+        ReservaEspacios
+      </a>
+
+      <div>
+        <h1 class="auth__headline">Crea tu cuenta y reserva en minutos</h1>
+        <p class="auth__text">Con tu cuenta puedes buscar aulas y laboratorios disponibles, enviar solicitudes y dar seguimiento a cada una.</p>
+        <ul class="features">
+          <li>
+            <span class="features__icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+            Disponibilidad actualizada al momento
+          </li>
+          <li>
+            <span class="features__icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span>
+            Aviso cuando tu solicitud sea revisada
+          </li>
+        </ul>
+      </div>
+
+      <p class="auth__foot">Sistema de reservas · 2026</p>
+    </aside>
+
+    <!-- Formulario -->
+    <main class="auth__main">
+      <div class="auth-card">
+        <a class="brand auth-card__brand" href="index.html">
+          <span class="brand__mark">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          </span>
+          ReservaEspacios
+        </a>
+
+        <h2 class="auth-card__title">Crear cuenta</h2>
+        <p class="auth-card__subtitle">Regístrate para consultar espacios y solicitar reservas.</p>
+
+        <form class="stack" action="#" method="post">
+          <div class="field">
+            <label class="field__label" for="nombre">Nombre completo</label>
+            <input class="input" id="nombre" name="nombre" type="text" placeholder="Ej. Ana Martínez" autocomplete="name" required>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="correo">Correo electrónico</label>
+            <input class="input" id="correo" name="correo" type="email" placeholder="usuario@institucion.edu.sv" autocomplete="email" required>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label class="field__label" for="contrasena">Contraseña</label>
+              <input class="input" id="contrasena" name="contrasena" type="password" placeholder="••••••••" minlength="8" autocomplete="new-password" required>
+            </div>
+            <div class="field">
+              <label class="field__label" for="confirmar">Confirmar contraseña</label>
+              <input class="input" id="confirmar" name="confirmar" type="password" placeholder="••••••••" minlength="8" autocomplete="new-password" required>
+            </div>
+          </div>
+          <p class="field__hint">La contraseña debe tener al menos 8 caracteres. Todos los campos son obligatorios.</p>
+
+          <button class="btn btn--primary btn--block" type="submit">Crear cuenta</button>
+        </form>
+
+        <p class="auth-card__switch">¿Ya tienes una cuenta? <a href="login.html">Iniciar sesión</a></p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

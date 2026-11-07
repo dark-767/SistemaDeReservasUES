@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buscar espacios · ReservaEspacios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <!-- Barra superior · Usuario -->
+  <header class="topbar">
+    <a class="brand" href="buscar-disponibilidad.html">
+      <span class="brand__mark">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </span>
+      ReservaEspacios
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="buscar-disponibilidad.html" class="is-active" aria-current="page">Buscar espacios</a>
+      <a href="#">Mis solicitudes</a>
+      <a href="#">Calendario</a>
+    </nav>
+    <div class="user">
+      <span class="avatar" aria-hidden="true">NU</span>
+      <div class="user__info">
+        <span class="user__name">Nombre de usuario</span>
+        <span class="user__role">Usuario</span>
+      </div>
+      <a class="btn btn--ghost" href="login.html" title="Cerrar sesión">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+        <span class="hide-sm">Salir</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div>
+      <h1 class="page-title">Buscar espacios disponibles</h1>
+      <p class="page-subtitle">Elige fecha y horario para ver qué aulas y laboratorios están libres.</p>
+    </div>
+
+    <!-- Filtros de búsqueda -->
+    <form class="card filters" action="#" method="get" role="search">
+      <div class="field">
+        <label class="field__label" for="fecha">Fecha</label>
+        <input class="input" id="fecha" name="fecha" type="date" value="2026-11-06">
+      </div>
+      <div class="field">
+        <label class="field__label" for="horario">Horario</label>
+        <select class="select" id="horario" name="horario">
+          <option>07:00 – 08:40</option>
+          <option>08:50 – 10:30</option>
+          <option>10:40 – 12:20</option>
+          <option>13:20 – 15:00</option>
+          <option>15:10 – 16:50</option>
+          <option>17:00 – 18:40</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field__label" for="tipo">Tipo de espacio</label>
+        <select class="select" id="tipo" name="tipo">
+          <option>Todos</option>
+          <option>Aula</option>
+          <option>Laboratorio</option>
+          <option>Auditorio</option>
+          <option>Sala de reuniones</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field__label" for="capacidad">Capacidad mínima</label>
+        <input class="input" id="capacidad" name="capacidad" type="number" min="1" placeholder="Ej. 40">
+      </div>
+      <button class="btn btn--primary" type="submit">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        Buscar
+      </button>
+    </form>
+
+    <!-- Resultados -->
+    <section class="stack" aria-labelledby="resultados">
+      <div class="results-head">
+        <h2 id="resultados">3 espacios disponibles</h2>
+        <p>Viernes 6 de noviembre · 07:00 – 08:40</p>
+      </div>
+
+      <div class="space-grid">
+        <article class="card space-card">
+          <div class="space-card__media">
+            <span class="badge badge--plain">Aula</span>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg>
+          </div>
+          <div class="space-card__body">
+            <h3 class="space-card__title">Aula B-21</h3>
+            <div class="meta">
+              <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>60 personas</span>
+              <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Edificio B, planta 2</span>
+            </div>
+            <p class="space-card__label">Horarios ocupados ese día</p>
+            <div class="slots">
+              <span class="slot">08:50 – 10:30</span>
+              <span class="slot">13:20 – 15:00</span>
+            </div>
+            <div class="space-card__actions">
+              <a class="btn btn--secondary" href="#">Ver horario</a>
+              <a class="btn btn--primary" href="#">Solicitar</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="card space-card">
+          <div class="space-card__media space-card__media--lab">
+            <span class="badge badge--plain">Laboratorio</span>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </div>
+          <div class="space-card__body">
+            <h3 class="space-card__title">Laboratorio L-3</h3>
+            <div class="meta">
+              <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>30 personas</span>
+              <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Edificio C, planta 1</span>
+            </div>
+            <p class="space-card__label">Horarios ocupados ese día</p>
+            <div class="slots">
+              <span class="slot">10:40 – 12:20</span>
+              <span class="slot">15:10 – 16:50</span>
+              <span class="slot">17:00 – 18:40</span>
+            </div>
+            <div class="space-card__actions">
+              <a class="btn btn--secondary" href="#">Ver horario</a>
+              <a class="btn btn--primary" href="#">Solicitar</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="card space-card">
+          <div class="space-card__media space-card__media--hall">
+            <span class="badge badge--plain">Auditorio</span>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="space-card__body">
+            <h3 class="space-card__title">Auditorio A-1</h3>
+            <div class="meta">
+              <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>150 personas</span>
+              <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Edificio A, planta baja</span>
+            </div>
+            <p class="space-card__label">Horarios ocupados ese día</p>
+            <div class="slots">
+              <span class="slot">13:20 – 15:00</span>
+            </div>
+            <div class="space-card__actions">
+              <a class="btn btn--secondary" href="#">Ver horario</a>
+              <a class="btn btn--primary" href="#">Solicitar</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
