@@ -1,0 +1,54 @@
+{% extends "usuarios/base_auth.html" %}
+
+{% block titulo %}Crear cuenta{% endblock %}
+
+{% block contenido %}
+        <h2 class="auth-card__title">Crear cuenta</h2>
+        <p class="auth-card__subtitle">Esta será la cuenta de administrador del sistema.</p>
+
+        <form class="stack" action="{% url 'registro' %}" method="post" novalidate>
+          {% csrf_token %}
+
+          {% if form.errors %}
+          <div class="alert alert--error" role="alert">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <span>
+              {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}{{ error }} {% endfor %}
+              {% else %}
+                No se pudo crear la cuenta. Revisa los campos marcados e inténtalo de nuevo.
+              {% endif %}
+            </span>
+          </div>
+          {% endif %}
+
+          <div class="field">
+            <label class="field__label" for="nombre">Nombre completo</label>
+            <input class="input{% if form.nombre.errors %} input--error{% endif %}" id="nombre" name="nombre" type="text" placeholder="Ej. Ana Martínez" autocomplete="name" value="{{ form.nombre.value|default_if_none:'' }}" required>
+            {% for error in form.nombre.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="correo">Correo electrónico</label>
+            <input class="input{% if form.correo.errors %} input--error{% endif %}" id="correo" name="correo" type="email" placeholder="usuario@institucion.edu.sv" autocomplete="email" value="{{ form.correo.value|default_if_none:'' }}" required>
+            {% for error in form.correo.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label class="field__label" for="contrasena">Contraseña</label>
+              <input class="input{% if form.contrasena.errors %} input--error{% endif %}" id="contrasena" name="contrasena" type="password" placeholder="••••••••" minlength="8" autocomplete="new-password" required>
+              {% for error in form.contrasena.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="field">
+              <label class="field__label" for="confirmar">Confirmar contraseña</label>
+              <input class="input{% if form.confirmar.errors %} input--error{% endif %}" id="confirmar" name="confirmar" type="password" placeholder="••••••••" minlength="8" autocomplete="new-password" required>
+              {% for error in form.confirmar.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+            </div>
+          </div>
+          <p class="field__hint">La contraseña debe tener al menos 8 caracteres. Todos los campos son obligatorios.</p>
+
+          <button class="btn btn--primary btn--block" type="submit">Crear cuenta</button>
+        </form>
+
+{% endblock %}

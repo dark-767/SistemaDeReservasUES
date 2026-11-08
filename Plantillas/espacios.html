@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Espacios · ReservaEspacios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <!-- Barra superior · Administrador -->
+  <header class="topbar">
+    <a class="brand" href="espacios.html">
+      <span class="brand__mark">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </span>
+      ReservaEspacios
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="espacios.html" class="is-active" aria-current="page">Espacios</a>
+      <a href="#">Solicitudes</a>
+      <a href="#">Calendario</a>
+    </nav>
+    <div class="user">
+      <span class="avatar" aria-hidden="true">AD</span>
+      <div class="user__info">
+        <span class="user__name">Nombre del administrador</span>
+        <span class="user__role">Administrador</span>
+      </div>
+      <a class="btn btn--ghost" href="login.html" title="Cerrar sesión">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+        <span class="hide-sm">Salir</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Espacios</h1>
+        <p class="page-subtitle">Administra aulas, laboratorios y su disponibilidad.</p>
+      </div>
+      <a class="btn btn--primary" href="registrar-espacio.html">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Registrar espacio
+      </a>
+    </div>
+
+    <!-- Filtros -->
+    <form class="toolbar" action="#" method="get" role="search">
+      <div class="field field--search">
+        <label class="field__label" for="buscar">Buscar</label>
+        <div class="input-icon">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input class="input" id="buscar" name="q" type="search" placeholder="Nombre o ubicación">
+        </div>
+      </div>
+      <div class="field field--select">
+        <label class="field__label" for="tipo">Tipo</label>
+        <select class="select" id="tipo" name="tipo">
+          <option>Todos</option>
+          <option>Aula</option>
+          <option>Laboratorio</option>
+          <option>Auditorio</option>
+          <option>Sala de reuniones</option>
+        </select>
+      </div>
+      <div class="field field--select">
+        <label class="field__label" for="estado">Estado</label>
+        <select class="select" id="estado" name="estado">
+          <option>Todos</option>
+          <option>Activo</option>
+          <option>En mantenimiento</option>
+          <option>Inactivo</option>
+        </select>
+      </div>
+    </form>
+
+    <!-- Tabla de espacios -->
+    <section class="card table-card" aria-label="Lista de espacios">
+      <div class="table-scroll">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Capacidad</th>
+              <th scope="col">Ubicación</th>
+              <th scope="col">Estado</th>
+              <th scope="col" class="actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="space-name"><span class="space-name__icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg></span>Aula B-21</div></td>
+              <td>Aula</td>
+              <td class="num">60</td>
+              <td>Edificio B, planta 2</td>
+              <td><span class="badge badge--success">Activo</span></td>
+              <td class="actions">
+                <a class="btn btn--ghost btn--sm" href="registrar-espacio.html">Editar</a>
+                <a class="btn btn--ghost btn--sm" href="registrar-espacio.html#disponibilidad">Disponibilidad</a>
+              </td>
+            </tr>
+            <tr>
+              <td><div class="space-name"><span class="space-name__icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg></span>Aula B-22</div></td>
+              <td>Aula</td>
+              <td class="num">45</td>
+              <td>Edificio B, planta 2</td>
+              <td><span class="badge badge--success">Activo</span></td>
+              <td class="actions">
+                <a class="btn btn--ghost btn--sm" href="registrar-espacio.html">Editar</a>
+                <a class="btn btn--ghost btn--sm" href="registrar-espacio.html#disponibilidad">Disponibilidad</a>
+              </td>
+            </tr>
+            <tr>
+              <td><div class="space-name"><span class="space-name__icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>Laboratorio L-3</div></td>
+              <td>Laboratorio</td>
+              <td class="num">30</td>
+              <td>Edificio C, planta 1</td>
+              <td><span class="badge badge--success">Activo</span></td>
+              <td class="actions">
+                <a class="btn btn--ghost btn--sm" href="registrar-espacio.html">Editar</a>
+                <a class="btn btn--ghost btn--sm" href="registrar-espacio.html#disponibilidad">Disponibilidad</a>
+              </td>
+            </tr>
+            <tr>
+              <td><div class="space-name"><span class="space-name__icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>Laboratorio L-4</div></td>
+              <td>Laboratorio</td>
+              <td class="num">25</td>
+              <td>Edificio C, planta 1</td>
+              <td><span class="badge badge--warning">En mantenimiento</span></td>
+              <td class="actions">
+                <a class="btn btn--ghost btn--sm" href="registrar-espacio.html">Editar</a>
+                <a class="btn btn--ghost btn--sm" href="registrar-espacio.html#disponibilidad">Disponibilidad</a>
+              </td>
+            </tr>
+            <tr>
+              <td><div class="space-name"><span class="space-name__icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Auditorio A-1</div></td>
+              <td>Auditorio</td>
+              <td class="num">150</td>
+              <td>Edificio A, planta baja</td>
+              <td><span class="badge badge--success">Activo</span></td>
+              <td class="actions">
+                <a class="btn btn--ghost btn--sm" href="registrar-espacio.html">Editar</a>
+                <a class="btn btn--ghost btn--sm" href="registrar-espacio.html#disponibilidad">Disponibilidad</a>
+              </td>
+            </tr>
+            <tr>
+              <td><div class="space-name"><span class="space-name__icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Sala R-2</div></td>
+              <td>Sala de reuniones</td>
+              <td class="num">12</td>
+              <td>Edificio D, planta 3</td>
+              <td><span class="badge badge--neutral">Inactivo</span></td>
+              <td class="actions">
+                <a class="btn btn--ghost btn--sm" href="registrar-espacio.html">Editar</a>
+                <a class="btn btn--ghost btn--sm" href="registrar-espacio.html#disponibilidad">Disponibilidad</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <span>Mostrando 6 de 18 espacios</span>
+        <div class="pagination">
+          <a class="btn btn--secondary btn--sm" href="#">Anterior</a>
+          <a class="btn btn--secondary btn--sm" href="#">Siguiente</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

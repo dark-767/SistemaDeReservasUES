@@ -1,0 +1,16 @@
+{% extends "usuarios/base_auth.html" %}
+
+{% block titulo %}Bienvenido{% endblock %}
+
+{% block contenido %}
+        <h2 class="auth-card__title">Bienvenido</h2>
+        <p class="auth-card__subtitle">Gracias por instalar ReservaEspacios. Antes de empezar, el sistema necesita una cuenta de administrador.</p>
+
+        <div class="auth-card__actions">
+          <div class="alert alert--info" role="status">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span>Debes crear una cuenta primero. Será la del administrador y desde ella se crearán las demás cuentas.</span>
+          </div>
+          <a class="btn btn--primary btn--block" href="{% url 'registro' %}">Crear cuenta de administrador</a>
+        </div>
+{% endblock %}

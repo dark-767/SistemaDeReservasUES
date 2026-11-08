@@ -2,7 +2,11 @@
 
 Sistema para reservar espacios de la Universidad de El Salvador (aulas, laboratorios y otros). Está hecho con Django y PostgreSQL.
 
-Hoy el proyecto deja lista la base de datos, el modelo de usuario y el formulario de registro. Todavía no hay pantallas propias: la página de inicio es la de Django y la administración está en `/admin/`.
+## Cómo funciona el primer uso
+
+1. Con el sistema recién instalado no hay usuarios. La primera pantalla (`/`) es una **bienvenida** que indica que hay que crear una cuenta primero y lleva al registro.
+2. Esa primera cuenta siempre es la del **administrador**. Al crearla se muestra una pantalla de cuenta creada, o los errores si algo falla.
+3. Con un administrador ya creado, `/` pasa a ser el **inicio de sesión** (por ahora una pantalla en construcción) y el registro público se cierra. Las demás cuentas las creará el administrador.
 
 ## Qué incluye
 
@@ -55,7 +59,7 @@ python manage.py runserver
 
 En Windows, activa el entorno con `.venv\Scripts\activate`.
 
-Abre http://127.0.0.1:8000/.
+Abre http://127.0.0.1:8000/ y sigue la pantalla de bienvenida para crear la cuenta de administrador.
 
 Para entrar al panel de administración crea un administrador y abre http://127.0.0.1:8000/admin/:
 
@@ -79,6 +83,16 @@ python manage.py createsuperuser
 manage.py
 requirements.txt
 gestionDeEspacios/   configuración del proyecto
-usuarios/            usuario, registro e inicio de sesión
+usuarios/            usuario y registro (formulario, vista, plantillas)
 reservas/            espacios, horarios y reservas
+static/css/          estilos compartidos
+Plantillas/          maquetas HTML originales de diseño
 ```
+
+## Pruebas
+
+```bash
+python manage.py test usuarios
+```
+
+Las pruebas crean una base temporal, así que el usuario de PostgreSQL necesita permiso para crear bases de datos (`ALTER USER reservas_user CREATEDB;`).

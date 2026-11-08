@@ -1,23 +1,88 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.db import transaction
 
 from .models import Usuario
 
 
-class RegistroForm(UserCreationForm):
-    """HU02: registro de cuenta (siempre con rol 'usuario')."""
+class RegistroForm(forms.Form):
+    """
+    Registro de cuenta (HU02). Los nombres de los campos son los de la plantilla
+    registro.html. Se usa solo en el primer uso del sistema, así que la cuenta
+    que crea es la del administrador.
+    """
 
-    class Meta(UserCreationForm.Meta):
-        model = Usuario
-        fields = ("username", "first_name", "last_name", "email")
+    nombre = forms.CharField(
+        label="Nombre completo",
+        max_length=150,
+        error_messages={"required": "Ingresa tu nombre completo."},
+    )
+    correo = forms.EmailField(
+        label="Correo electrónico",
+        max_length=150,  # también se usa como nombre de usuario (máx. 150)
+        error_messages={
+            "required": "Ingresa tu correo electrónico.",
+            "invalid": "Ingresa un correo electrónico válido.",
+        },
+    )
+    contrasena = forms.CharField(
+        label="Contraseña",
+        strip=False,
+        widget=forms.PasswordInput,
+        error_messages={"required": "Ingresa una contraseña."},
+    )
+    confirmar = forms.CharField(
+        label="Confirmar contraseña",
+        strip=False,
+        widget=forms.PasswordInput,
+        error_messages={"required": "Confirma tu contraseña."},
+    )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for campo in ("first_name", "last_name", "email"):
-            self.fields[campo].required = True
+    def clean_nombre(self):
+        nombre = " ".join(self.cleaned_data["nombre"].split())
+        if not nombre:
+            raise ValidationError("Ingresa tu nombre completo.")
+        return nombre
 
-    def clean_email(self):
-        email = self.cleaned_data["email"].strip().lower()
-        if Usuario.objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError("Ya existe una cuenta con este correo electrónico.")
-        return email
+    def clean_correo(self):
+        correo = self.cleaned_data["correo"].strip().lower()
+        if Usuario.objects.filter(email__iexact=correo).exists() or Usuario.objects.filter(
+            username__iexact=correo
+        ).exists():
+            raise ValidationError("Este correo electrónico ya está registrado.")
+        return correo
+
+    def clean(self):
+        datos = super().clean()
+        contrasena = datos.get("contrasena")
+        confirmar = datos.get("confirmar")
+
+        if contrasena and confirmar and contrasena != confirmar:
+            self.add_error("confirmar", "Las contraseñas no coinciden.")
+        elif contrasena:
+            candidato = Usuario(
+                username=datos.get("correo", ""),
+                email=datos.get("correo", ""),
+                first_name=datos.get("nombre", ""),
+            )
+            try:
+                validate_password(contrasena, candidato)
+            except ValidationError as error:
+                self.add_error("contrasena", error)
+        return datos
+
+    def guardar(self):
+        """Crea el administrador en la base de datos (contraseña con hash)."""
+        nombre = self.cleaned_data["nombre"]
+        nombres, _, apellidos = nombre.partition(" ")
+        correo = self.cleaned_data["correo"]
+        with transaction.atomic():
+            return Usuario.objects.create_user(
+                username=correo,  # se inicia sesión con el correo
+                email=correo,
+                password=self.cleaned_data["contrasena"],
+                first_name=nombres,
+                last_name=apellidos,
+                rol=Usuario.Rol.ADMIN,
+            )
