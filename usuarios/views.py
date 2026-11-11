@@ -1,7 +1,9 @@
 from django.db import DatabaseError, IntegrityError
 from django.shortcuts import redirect, render
+from django.contrib.auth import authenticate, login as auth_login
 
 from .forms import RegistroForm
+from .forms import LoginForm
 from .models import Usuario
 
 SESION_REGISTRO = "registro_exitoso"
@@ -18,16 +20,34 @@ def inicio(request):
     - Sin administrador (primer uso): bienvenida que lleva a crear la cuenta.
     - Con administrador: inicio de sesión.
     """
-    if hay_administrador():
+    if not hay_administrador():
+        return render(request,"usuarios/bienvenida.html")
+
+    if not request.user.is_authenticated:
         return redirect("login")
-    return render(request, "usuarios/bienvenida.html")
+    
+    #Si ya hay admin y el usuario inicio sesión, se renderiza su vista principal
+    return render(request, "usuarios/index.html")
 
 
 def login(request):
-    """Pendiente: la vista de inicio de sesión aún no está implementada."""
+    """Vista de inicio de sesión."""
     if not hay_administrador():
         return redirect("inicio")
-    return render(request, "usuarios/login_pendiente.html")
+
+    if request.user.is_authenticated:
+        return redirect("inicio")
+
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            usuario = form.obtener_usuario()
+            auth_login(request, usuario)
+            return redirect(request.GET.get("next", "inicio"))
+    else:
+        form = LoginForm()
+
+    return render(request, "usuarios/login.html", {"form": form})
 
 
 def registro(request):

@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.contrib.auth import authenticate
 
 from .models import Usuario
 
@@ -86,3 +87,43 @@ class RegistroForm(forms.Form):
                 last_name=apellidos,
                 rol=Usuario.Rol.ADMIN,
             )
+
+
+class LoginForm(forms.Form):
+    """
+    Formulario de inicio de sesión. Mantiene los nombres de campos de la plantilla login.html
+    (usuario y contrasena).
+    """
+
+    usuario = forms.CharField(
+        label="Correo o usuario",
+        error_messages={"required": "Ingresa tu correo o nombre de usuario."},
+    )
+    contrasena = forms.CharField(
+        label="Contraseña",
+        strip=False,
+        widget=forms.PasswordInput,
+        error_messages={"required": "Ingresa tu contraseña."},
+    )
+
+    def clean(self):
+        datos = super().clean()
+        usuario_input = datos.get("usuario")
+        contrasena_input = datos.get("contrasena")
+
+        if usuario_input and contrasena_input:
+            # Autenticamos las credenciales contra la BD
+            user = authenticate(
+                username=usuario_input.strip(), password=contrasena_input
+            )
+            if user is None:
+                raise ValidationError(
+                    "Correo, usuario o contraseña incorrectos. Inténtalo de nuevo."
+                )
+            datos["user"] = user
+
+        return datos
+
+    def obtener_usuario(self):
+        """Retorna el objeto Usuario autenticado."""
+        return self.cleaned_data.get("user")
