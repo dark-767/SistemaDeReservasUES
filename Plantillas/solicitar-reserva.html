@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solicitar reserva · ReservaEspacios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <!-- Barra superior · Usuario -->
+  <header class="topbar">
+    <a class="brand" href="buscar-disponibilidad.html">
+      <span class="brand__mark">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </span>
+      ReservaEspacios
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="buscar-disponibilidad.html" class="is-active" aria-current="page">Buscar espacios</a>
+      <a href="#">Mis solicitudes</a>
+      <a href="#">Calendario</a>
+    </nav>
+    <div class="user">
+      <span class="avatar" aria-hidden="true">NU</span>
+      <div class="user__info">
+        <span class="user__name">Nombre de usuario</span>
+        <span class="user__role">Usuario</span>
+      </div>
+      <a class="btn btn--ghost" href="login.html" title="Cerrar sesión">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+        <span class="hide-sm">Salir</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div>
+      <nav class="breadcrumb" aria-label="Ruta">
+        <a href="buscar-disponibilidad.html">Buscar espacios</a>
+        <span aria-hidden="true">/</span>
+        <span>Solicitar reserva</span>
+      </nav>
+      <h1 class="page-title" style="margin-top: 10px;">Solicitar reserva</h1>
+      <p class="page-subtitle">Completa los datos. Tu solicitud quedará pendiente hasta que un administrador la revise.</p>
+    </div>
+
+    <form class="request-layout" action="#" method="post">
+      <!-- Formulario -->
+      <section class="card card__body">
+
+        <!-- Mensajes de validación: quitar "hidden" cuando corresponda -->
+        <div class="stack" style="gap: 12px;">
+          <div class="alert alert--error" role="alert" hidden>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <span>Este espacio ya tiene una reserva aprobada en ese horario. Elige otro horario u otro espacio.</span>
+          </div>
+        </div>
+
+        <!-- 1. Fecha y horario -->
+        <div class="form-section schedule">
+          <div class="section-head">
+            <span class="step">1</span>
+            <div>
+              <h2>Fecha y horario</h2>
+              <p>Elige cuándo necesitas el espacio.</p>
+            </div>
+          </div>
+
+          <div class="stack">
+            <div class="row">
+              <div class="field">
+                <label class="field__label" for="fecha">Fecha</label>
+                <input class="input" id="fecha" name="fecha" type="date" value="2026-11-06" required>
+              </div>
+              <div class="field">
+                <span class="field__label" id="modo-label">Tipo de horario</span>
+                <div class="segmented" role="radiogroup" aria-labelledby="modo-label">
+                  <label><input type="radio" name="modo" id="modo-clase" value="clase" checked><span>Hora clase</span></label>
+                  <label><input type="radio" name="modo" id="modo-examen" value="examen"><span>Examen</span></label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hora clase: bloques fijos -->
+            <div class="field horario-clase">
+              <label class="field__label" for="bloque">Bloque de hora clase</label>
+              <select class="select" id="bloque" name="bloque">
+                <option selected>07:00 – 08:40</option>
+                <option>08:50 – 10:30</option>
+                <option>10:40 – 12:20</option>
+                <option>13:20 – 15:00</option>
+                <option>15:10 – 16:50</option>
+                <option>17:00 – 18:40</option>
+              </select>
+              <span class="field__hint">Las horas clase usan bloques fijos.</span>
+            </div>
+
+            <!-- Examen: horario modificable -->
+            <div class="row horario-examen">
+              <div class="field">
+                <label class="field__label" for="desde">Desde</label>
+                <input class="input" id="desde" name="desde" type="time" value="07:00">
+              </div>
+              <div class="field">
+                <label class="field__label" for="hasta">Hasta</label>
+                <input class="input" id="hasta" name="hasta" type="time" value="09:00">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Espacio -->
+        <div class="form-section">
+          <div class="section-head">
+            <span class="step">2</span>
+            <div>
+              <h2>Espacio</h2>
+              <p>Solo aparecen los espacios libres en la fecha y horario elegidos.</p>
+            </div>
+          </div>
+
+          <div class="stack">
+            <div class="field">
+              <label class="field__label" for="espacio">Espacio disponible</label>
+              <select class="select" id="espacio" name="espacio" required>
+                <option selected>Aula B-21 · Aula · 60 personas</option>
+                <option>Laboratorio L-3 · Laboratorio · 30 personas</option>
+                <option>Auditorio A-1 · Auditorio · 150 personas</option>
+              </select>
+            </div>
+
+            <div class="selected-space">
+              <span class="selected-space__icon">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg>
+              </span>
+              <div>
+                <p class="selected-space__name">Aula B-21</p>
+                <p class="selected-space__meta">Capacidad 60 personas · Edificio B, planta 2 · Proyector y pizarra</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Motivo -->
+        <div class="form-section">
+          <div class="section-head">
+            <span class="step">3</span>
+            <div>
+              <h2>Motivo de la reserva</h2>
+              <p>Elige un motivo y agrega el detalle.</p>
+            </div>
+          </div>
+
+          <div class="stack">
+            <fieldset class="fieldset">
+              <legend class="field__label">Motivo</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="motivo" value="clase" checked><span>Clase</span></label>
+                <label class="choice"><input type="radio" name="motivo" value="examen"><span>Examen</span></label>
+                <label class="choice"><input type="radio" name="motivo" value="defensa"><span>Defensa o presentación</span></label>
+                <label class="choice"><input type="radio" name="motivo" value="reunion"><span>Reunión</span></label>
+                <label class="choice"><input type="radio" name="motivo" value="evento"><span>Evento</span></label>
+                <label class="choice"><input type="radio" name="motivo" value="otro"><span>Otro</span></label>
+              </div>
+            </fieldset>
+
+            <div class="field">
+              <label class="field__label" for="detalle">Detalle del motivo</label>
+              <textarea class="textarea" id="detalle" name="detalle" placeholder="Ej. Clase de refuerzo de Análisis de Sistemas, grupo 02"></textarea>
+            </div>
+
+            <div class="field" style="max-width: 280px;">
+              <label class="field__label" for="asistentes">Asistentes estimados</label>
+              <input class="input" id="asistentes" name="asistentes" type="number" min="1" max="60" placeholder="Ej. 40" required>
+              <span class="field__hint">Capacidad máxima del espacio: 60 personas.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section form-actions">
+          <a class="btn btn--secondary" href="buscar-disponibilidad.html">Cancelar</a>
+          <button class="btn btn--primary" type="submit">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            Enviar solicitud
+          </button>
+        </div>
+      </section>
+
+      <!-- Resumen -->
+      <aside class="card summary" aria-label="Resumen de la solicitud">
+        <div class="space-card__media">
+          <span class="badge badge--plain">Aula</span>
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg>
+        </div>
+        <div class="summary__body">
+          <h2 class="card__title">Resumen de la solicitud</h2>
+          <dl class="summary-list">
+            <div><dt>Espacio</dt><dd>Aula B-21</dd></div>
+            <div><dt>Fecha</dt><dd>Viernes 6 de noviembre</dd></div>
+            <div><dt>Horario</dt><dd>07:00 – 08:40</dd></div>
+            <div><dt>Motivo</dt><dd>Clase</dd></div>
+            <div><dt>Capacidad</dt><dd>60 personas</dd></div>
+          </dl>
+        </div>
+        <div class="summary__status">
+          <span class="badge badge--warning">Pendiente al enviar</span>
+          <span>Recibirás la respuesta en Mis solicitudes. Si se rechaza, verás el motivo que indicó el administrador.</span>
+        </div>
+      </aside>
+    </form>
+  </main>
+</body>
+</html>
