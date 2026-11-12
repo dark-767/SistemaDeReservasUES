@@ -1,0 +1,64 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reserva aprobada · ReservaEspacios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{% url 'inicio' %}">
+      <span class="brand__mark">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </span>
+      ReservaEspacios
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="{% url 'buscar_disponibilidad' %}">Buscar espacios</a>
+      <a href="{% url 'solicitar_reserva' %}" class="is-active" aria-current="page">Solicitar</a>
+      <a href="#">Calendario</a>
+    </nav>
+    <div class="user">
+      <span class="avatar" aria-hidden="true">{{ iniciales }}</span>
+      <div class="user__info">
+        <span class="user__name">{{ nombre_usuario }}</span>
+        <span class="user__role">{{ rol_usuario }}</span>
+      </div>
+      <form method="post" action="{% url 'salir' %}">
+        {% csrf_token %}
+        <button class="btn btn--ghost" type="submit" title="Cerrar sesión">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+          <span class="hide-sm">Salir</span>
+        </button>
+      </form>
+    </div>
+  </header>
+
+  <main class="page">
+    <div>
+      <h1 class="page-title">Reserva registrada</h1>
+      <p class="page-subtitle">La solicitud cumplió la capacidad y no tiene conflicto de horario.</p>
+    </div>
+
+    <article class="card card__body stack">
+      <p><span class="badge badge--success">{{ reserva.get_estado_display }}</span></p>
+      <h2 class="space-card__title">{{ reserva.espacio.nombre }}</h2>
+      <div class="meta">
+        <span>{{ fecha_legible }}</span>
+        <span>{{ horario_legible }}</span>
+        <span>{{ reserva.cantidad_personas }} personas</span>
+        <span>{{ reserva.motivo.nombre }}</span>
+      </div>
+      <p>{{ reserva.motivo_detalle }}</p>
+      <div class="form-actions">
+        <a class="btn btn--primary" href="{% url 'buscar_disponibilidad' %}?fecha={{ fecha_valor }}&horario={{ reserva.bloque_horario_id }}">Volver a la búsqueda</a>
+      </div>
+    </article>
+  </main>
+</body>
+</html>

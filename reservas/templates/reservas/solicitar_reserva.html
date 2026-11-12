@@ -1,0 +1,111 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solicitar reserva · ReservaEspacios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{% url 'inicio' %}">
+      <span class="brand__mark">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </span>
+      ReservaEspacios
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="{% url 'buscar_disponibilidad' %}">Buscar espacios</a>
+      <a href="#" class="is-active" aria-current="page">Solicitar</a>
+      <a href="#">Calendario</a>
+    </nav>
+    <div class="user">
+      <span class="avatar" aria-hidden="true">{{ iniciales }}</span>
+      <div class="user__info">
+        <span class="user__name">{{ nombre_usuario }}</span>
+        <span class="user__role">{{ rol_usuario }}</span>
+      </div>
+      <form method="post" action="{% url 'salir' %}">
+        {% csrf_token %}
+        <button class="btn btn--ghost" type="submit" title="Cerrar sesión">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+          <span class="hide-sm">Salir</span>
+        </button>
+      </form>
+    </div>
+  </header>
+
+  <main class="page">
+    <div>
+      <h1 class="page-title">Solicitar reserva</h1>
+      <p class="page-subtitle">Indica la fecha, el horario, el motivo y cuántas personas asistirán.</p>
+    </div>
+
+    <form class="card card__body stack" action="{% url 'solicitar_reserva' %}" method="post" novalidate>
+      {% csrf_token %}
+      {{ form.espacio }}
+
+      {% if form.non_field_errors or form.espacio.errors %}
+        <div class="alert alert--error" role="alert">
+          {% for error in form.non_field_errors %}<span>{{ error }}</span>{% endfor %}
+          {% for error in form.espacio.errors %}<span>{{ error }}</span>{% endfor %}
+        </div>
+      {% endif %}
+
+      {% if form.espacio_visible %}
+        <article class="card card__body">
+          <p class="space-card__label">Espacio</p>
+          <h2 class="space-card__title">{{ form.espacio_visible.nombre }}</h2>
+          <div class="meta">
+            <span>{{ form.espacio_visible.tipo_espacio.nombre }}</span>
+            <span>{{ form.espacio_visible.capacidad }} personas de capacidad</span>
+            {% if form.espacio_visible.ubicacion %}<span>{{ form.espacio_visible.ubicacion }}</span>{% endif %}
+          </div>
+        </article>
+      {% endif %}
+
+      <div class="row">
+        <div class="field">
+          <label class="field__label" for="fecha">Fecha</label>
+          <input class="input{% if form.fecha.errors %} input--error{% endif %}" id="fecha" name="fecha" type="date" value="{{ fecha_valor }}" required>
+          {% for error in form.fecha.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+        </div>
+        <div class="field">
+          <label class="field__label" for="{{ form.horario.id_for_label }}">Horario</label>
+          {{ form.horario }}
+          {% for error in form.horario.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label class="field__label" for="cantidad">Cantidad de personas</label>
+          <input class="input{% if form.cantidad.errors %} input--error{% endif %}" id="cantidad" name="cantidad" type="number" min="1" placeholder="Ej. 20" value="{{ form.cantidad.value|default_if_none:'' }}" required>
+          {% if form.espacio_visible %}<p class="field__hint">La capacidad de este espacio es {{ form.espacio_visible.capacidad }}.</p>{% endif %}
+          {% for error in form.cantidad.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+        </div>
+        <div class="field">
+          <label class="field__label" for="{{ form.motivo.id_for_label }}">Motivo</label>
+          {{ form.motivo }}
+          {% for error in form.motivo.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="detalle">Detalle</label>
+        <textarea class="textarea{% if form.detalle.errors %} input--error{% endif %}" id="detalle" name="detalle" rows="3" required>{{ form.detalle.value|default_if_none:'' }}</textarea>
+        {% for error in form.detalle.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+      </div>
+
+      <div class="form-actions">
+        <a class="btn btn--secondary" href="{% url 'buscar_disponibilidad' %}{% if fecha_valor %}?fecha={{ fecha_valor }}{% if form.horario.value %}&horario={{ form.horario.value }}{% endif %}{% endif %}">Volver</a>
+        <button class="btn btn--primary" type="submit">Enviar solicitud</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>
