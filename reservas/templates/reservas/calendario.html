@@ -8,23 +8,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/estilos.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/estilos.css' %}?v=3">
 </head>
 <body>
-  <!-- Barra superior · Usuario.
-       Para el administrador se usa la misma pantalla con su barra (Espacios, Solicitudes, Calendario)
-       y el panel de detalle muestra además quién hizo la reserva y el botón "Cancelar con motivo". -->
-   <header class="topbar">
-    <a class="brand" href="{% url 'inicio' %}">
+  <header class="topbar">
+    <a class="brand" href="{% url 'buscar_disponibilidad' %}">
       <span class="brand__mark">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
       </span>
       ReservaEspacios
     </a>
     <nav class="nav" aria-label="Principal">
-      <a href="{% url 'buscar_disponibilidad' %}" class="is-active" aria-current="page">Buscar espacios</a>
+      <a href="{% url 'buscar_disponibilidad' %}">Buscar espacios</a>
       <a href="{% url 'mis_solicitudes' %}">Mis solicitudes</a>
-      <a href="{% url 'calendario' %}">Calendario</a>
+      <a href="{% url 'calendario' %}" class="is-active" aria-current="page">Calendario</a>
     </nav>
     <div class="user">
       <span class="avatar" aria-hidden="true">{{ iniciales }}</span>
@@ -32,7 +29,7 @@
         <span class="user__name">{{ nombre_usuario }}</span>
         <span class="user__role">{{ rol_usuario }}</span>
       </div>
-      <form method="post" action="{% url 'salir' %}">
+      <form method="post" action="{% url 'salir' %}" style="margin:0;">
         {% csrf_token %}
         <button class="btn btn--ghost" type="submit" title="Cerrar sesión">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
@@ -44,203 +41,188 @@
 
   <main class="page cal">
     <div>
-      <!-- Ruta visible solo al llegar desde "Ver horario" en Buscar espacios -->
-      <nav class="breadcrumb" aria-label="Ruta" id="ruta" hidden>
+      {% if viene_de_busqueda and espacio_actual %}
+      <nav class="breadcrumb" aria-label="Ruta">
         <a href="{% url 'buscar_disponibilidad' %}">Buscar espacios</a>
         <span aria-hidden="true">/</span>
         <span>Horario del espacio</span>
       </nav>
-      <h1 class="page-title" id="titulo">Calendario de reservas</h1>
+      <h1 class="page-title">Horario de {{ espacio_actual.nombre }}</h1>
+      {% else %}
+      <h1 class="page-title">Calendario de reservas</h1>
+      {% endif %}
       <p class="page-subtitle">Consulta qué horarios están ocupados y reserva los que están libres.</p>
     </div>
 
     <div class="cal-layout">
       <section class="card cal-card" aria-label="Calendario">
         <!-- Filtros -->
-        <form class="cal-toolbar" action="#" method="get">
+        <form class="cal-toolbar" action="{% url 'calendario' %}" method="get" id="form-filtros-cal">
+          <input type="hidden" name="fecha" value="{{ fecha_valor }}">
           <div class="cal-filters">
             <div class="field" style="width: auto;">
               <span class="field__label" id="vista-label">Vista</span>
               <div class="segmented" role="radiogroup" aria-labelledby="vista-label">
-                <label><input type="radio" name="vista" id="vista-semana" value="semana" checked><span>Semana</span></label>
-                <label><input type="radio" name="vista" id="vista-dia" value="dia"><span>Día</span></label>
+                <label>
+                  <input type="radio" name="vista" id="vista-semana" value="semana" {% if vista == 'semana' %}checked{% endif %} onchange="this.form.submit()">
+                  <span>Semana</span>
+                </label>
+                <label>
+                  <input type="radio" name="vista" id="vista-dia" value="dia" {% if vista == 'dia' %}checked{% endif %} onchange="this.form.submit()">
+                  <span>Día</span>
+                </label>
               </div>
             </div>
-            <div class="field solo-semana">
+
+            {% if vista == 'semana' %}
+            <div class="field">
               <label class="field__label" for="espacio">Espacio</label>
-              <select class="select" id="espacio" name="espacio">
-                <option value="b21" selected>Aula B-21</option>
-                <option value="b22">Aula B-22</option>
-                <option value="l3">Laboratorio L-3</option>
-                <option value="a1">Auditorio A-1</option>
+              <select class="select" id="espacio" name="espacio" onchange="this.form.submit()">
+                {% for e in espacios %}
+                  <option value="{{ e.pk }}" {% if espacio_actual and e.pk == espacio_actual.pk %}selected{% endif %}>{{ e.nombre }}</option>
+                {% empty %}
+                  <option value="">Sin espacios</option>
+                {% endfor %}
               </select>
             </div>
+            {% endif %}
+
             <div class="field">
               <label class="field__label" for="tipo">Tipo de espacio</label>
-              <select class="select" id="tipo" name="tipo">
-                <option>Todos</option>
-                <option>Aula</option>
-                <option>Laboratorio</option>
-                <option>Auditorio</option>
+              <select class="select" id="tipo" name="tipo" onchange="this.form.submit()">
+                <option value="">Todos</option>
+                {% for t in tipos %}
+                  <option value="{{ t.pk }}" {% if tipo_id == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.nombre }}</option>
+                {% endfor %}
               </select>
             </div>
           </div>
+
           <div class="week-nav">
-            <a class="btn btn--secondary btn--icon" href="#" aria-label="Anterior">
+            <a class="btn btn--secondary btn--icon" href="{% url 'calendario' %}?vista={{ vista }}&fecha={{ fecha_anterior }}{% if espacio_actual %}&espacio={{ espacio_actual.pk }}{% endif %}{% if tipo_id %}&tipo={{ tipo_id }}{% endif %}" aria-label="Anterior">
               <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
             </a>
-            <span class="week-nav__label vista-semana">16 – 21 de noviembre</span>
-            <span class="week-nav__label vista-dia">Lunes 16 de noviembre</span>
-            <a class="btn btn--secondary btn--icon" href="#" aria-label="Siguiente">
+            <span class="week-nav__label">
+              {% if vista == 'semana' %}{{ rango_semana_label }}{% else %}{{ dia_label }}{% endif %}
+            </span>
+            <a class="btn btn--secondary btn--icon" href="{% url 'calendario' %}?vista={{ vista }}&fecha={{ fecha_siguiente }}{% if espacio_actual %}&espacio={{ espacio_actual.pk }}{% endif %}{% if tipo_id %}&tipo={{ tipo_id }}{% endif %}" aria-label="Siguiente">
               <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </a>
-            <a class="btn btn--secondary btn--sm" href="#">Hoy</a>
+            <a class="btn btn--secondary btn--sm" href="{% url 'calendario' %}?vista={{ vista }}{% if espacio_actual %}&espacio={{ espacio_actual.pk }}{% endif %}{% if tipo_id %}&tipo={{ tipo_id }}{% endif %}">Hoy</a>
           </div>
         </form>
 
+        {% if vista == 'semana' %}
         <!-- Vista semana: un espacio, días en columnas -->
-        <div class="table-scroll vista-semana">
-          <div class="calendar" role="grid" aria-label="Semana del 16 al 21 de noviembre, Aula B-21">
+        <div class="table-scroll">
+          <div class="calendar" role="grid" aria-label="Calendario semanal">
             <div class="calendar__corner">Bloque</div>
-            <div class="calendar__head">Lun<strong>16</strong></div>
-            <div class="calendar__head">Mar<strong>17</strong></div>
-            <div class="calendar__head">Mié<strong>18</strong></div>
-            <div class="calendar__head">Jue<strong>19</strong></div>
-            <div class="calendar__head">Vie<strong>20</strong></div>
-            <div class="calendar__head">Sáb<strong>21</strong></div>
-        <div class="calendar__time">07:00 – 08:40</div>
-        <div class="calendar__cell"><button class="event event--mine is-selected" type="button" data-tipo="mine" data-espacio="Aula B-21" data-fecha="Lunes 16 de noviembre" data-horario="07:00 – 08:40" data-motivo="Clase"><strong>Tu reserva</strong>Clase</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Miércoles 18 de noviembre" data-horario="07:00 – 08:40" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Sábado 21 de noviembre" data-horario="07:00 – 08:40" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
-        <div class="calendar__time">08:50 – 10:30</div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Lunes 16 de noviembre" data-horario="08:50 – 10:30" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Martes 17 de noviembre" data-horario="08:50 – 10:30" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Viernes 20 de noviembre" data-horario="08:50 – 10:30" data-motivo="Reunión"><strong>Reservado</strong>Reunión</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__time">10:40 – 12:20</div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><button class="event event--exam" type="button" data-tipo="exam" data-espacio="Aula B-21" data-fecha="Martes 17 de noviembre" data-horario="10:00 – 12:00" data-motivo="Examen"><strong>Examen</strong>10:00 – 12:00</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Jueves 19 de noviembre" data-horario="10:40 – 12:20" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__time">13:20 – 15:00</div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Lunes 16 de noviembre" data-horario="13:20 – 15:00" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Jueves 19 de noviembre" data-horario="13:20 – 15:00" data-motivo="Defensa"><strong>Reservado</strong>Defensa</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell calendar__cell--off"><span class="sr-only">No disponible</span></div>
-        <div class="calendar__time">15:10 – 16:50</div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Miércoles 18 de noviembre" data-horario="15:10 – 16:50" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell calendar__cell--off"><span class="sr-only">No disponible</span></div>
-        <div class="calendar__time">17:00 – 18:40</div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Martes 17 de noviembre" data-horario="17:00 – 18:40" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Viernes 20 de noviembre" data-horario="17:00 – 18:40" data-motivo="Evento"><strong>Reservado</strong>Evento</button></div>
-        <div class="calendar__cell calendar__cell--off"><span class="sr-only">No disponible</span></div>
-          </div>
-        </div>
+            {% for h in encabezados_semana %}
+              <div class="calendar__head {% if h.es_hoy %}is-today{% endif %}">{{ h.dia_corto }}<strong>{{ h.numero }}</strong></div>
+            {% endfor %}
 
-        <!-- Vista día: todos los espacios, espacios en columnas -->
-        <div class="table-scroll vista-dia">
-          <div class="calendar calendar--day" role="grid" aria-label="Lunes 16 de noviembre, todos los espacios">
-            <div class="calendar__corner">Bloque</div>
-            <div class="calendar__head">Aula<strong>B-21</strong></div>
-            <div class="calendar__head">Aula<strong>B-22</strong></div>
-            <div class="calendar__head">Laboratorio<strong>L-3</strong></div>
-            <div class="calendar__head">Auditorio<strong>A-1</strong></div>
-        <div class="calendar__time">07:00 – 08:40</div>
-        <div class="calendar__cell"><button class="event event--mine" type="button" data-tipo="mine" data-espacio="Aula B-21" data-fecha="Lunes 16 de noviembre" data-horario="07:00 – 08:40" data-motivo="Clase"><strong>Tu reserva</strong>Clase</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__time">08:50 – 10:30</div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Lunes 16 de noviembre" data-horario="08:50 – 10:30" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Laboratorio L-3" data-fecha="Lunes 16 de noviembre" data-horario="08:50 – 10:30" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__time">10:40 – 12:20</div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-22" data-fecha="Lunes 16 de noviembre" data-horario="10:40 – 12:20" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Auditorio A-1" data-fecha="Lunes 16 de noviembre" data-horario="10:40 – 12:20" data-motivo="Evento"><strong>Reservado</strong>Evento</button></div>
-        <div class="calendar__time">13:20 – 15:00</div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Lunes 16 de noviembre" data-horario="13:20 – 15:00" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__time">15:10 – 16:50</div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-22" data-fecha="Lunes 16 de noviembre" data-horario="15:10 – 16:50" data-motivo="Reunión"><strong>Reservado</strong>Reunión</button></div>
-        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Laboratorio L-3" data-fecha="Lunes 16 de noviembre" data-horario="15:10 – 16:50" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__time">17:00 – 18:40</div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell"><a class="free" href="#">Disponible</a></div>
-        <div class="calendar__cell calendar__cell--off"><span class="sr-only">No disponible</span></div>
+            {% for fila in filas_semana %}
+              <div class="calendar__time">{{ fila.horario }}</div>
+              {% for c in fila.celdas %}
+                <div class="calendar__cell">
+                  {% if c.ocupado %}
+                    <button
+                      class="event event--{{ c.tipo }} {% if primer_evento == c %}is-selected{% endif %}"
+                      type="button"
+                      data-tipo="{{ c.tipo }}"
+                      data-espacio="{{ c.espacio }}"
+                      data-fecha="{{ c.fecha }}"
+                      data-horario="{{ c.horario }}"
+                      data-motivo="{{ c.motivo }}"
+                    >
+                      <strong>{{ c.titulo }}</strong>{{ c.subtitulo }}
+                    </button>
+                  {% else %}
+                    <a class="free" href="{% url 'solicitar_reserva' %}?espacio={{ c.espacio_id }}&fecha={{ c.fecha_iso }}&horario={{ c.bloque_id }}">Disponible</a>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            {% endfor %}
           </div>
         </div>
+        {% else %}
+        <!-- Vista día: todos los espacios en columnas -->
+        <div class="table-scroll">
+          <div class="calendar calendar--day" style="grid-template-columns: 112px repeat({{ espacios|length|default:1 }}, minmax(150px, 1fr));" role="grid" aria-label="Calendario diario">
+            <div class="calendar__corner">Bloque</div>
+            {% for e in espacios %}
+              <div class="calendar__head">{{ e.tipo_espacio.nombre }}<strong>{{ e.codigo }}</strong></div>
+            {% endfor %}
+
+            {% for fila in filas_dia %}
+              <div class="calendar__time">{{ fila.horario }}</div>
+              {% for c in fila.celdas %}
+                <div class="calendar__cell">
+                  {% if c.ocupado %}
+                    <button
+                      class="event event--{{ c.tipo }} {% if primer_evento == c %}is-selected{% endif %}"
+                      type="button"
+                      data-tipo="{{ c.tipo }}"
+                      data-espacio="{{ c.espacio }}"
+                      data-fecha="{{ c.fecha }}"
+                      data-horario="{{ c.horario }}"
+                      data-motivo="{{ c.motivo }}"
+                    >
+                      <strong>{{ c.titulo }}</strong>{{ c.subtitulo }}
+                    </button>
+                  {% else %}
+                    <a class="free" href="{% url 'solicitar_reserva' %}?espacio={{ c.espacio_id }}&fecha={{ c.fecha_iso }}&horario={{ c.bloque_id }}">Disponible</a>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
 
         <div class="legend" aria-label="Leyenda">
           <span><i class="l-mine"></i>Tu reserva</span>
           <span><i class="l-busy"></i>Ocupado</span>
           <span><i class="l-exam"></i>Examen (horario libre)</span>
           <span><i class="l-free"></i>Disponible</span>
-          <span><i class="l-off"></i>Fuera del horario del espacio</span>
         </div>
       </section>
 
       <!-- Detalle del bloque seleccionado -->
       <aside class="card detail" aria-live="polite">
         <div class="card__body">
+          {% if primer_evento %}
           <div>
-            <span class="badge badge--success" id="d-badge">Tu reserva · Aprobada</span>
-            <h2 class="card__title" style="margin-top: 12px;" id="d-espacio">Aula B-21</h2>
+            <span class="badge {% if primer_evento.tipo == 'mine' %}badge--success{% elif primer_evento.tipo == 'exam' %}badge--warning{% else %}badge--neutral{% endif %}" id="d-badge">
+              {% if primer_evento.tipo == 'mine' %}Tu reserva · Aprobada{% elif primer_evento.tipo == 'exam' %}Ocupado · Examen{% else %}Ocupado{% endif %}
+            </span>
+            <h2 class="card__title" style="margin-top: 12px;" id="d-espacio">{{ primer_evento.espacio }}</h2>
           </div>
           <dl class="summary-list">
-            <div><dt>Fecha</dt><dd id="d-fecha">Lunes 16 de noviembre</dd></div>
-            <div><dt>Horario</dt><dd id="d-horario">07:00 – 08:40</dd></div>
-            <div><dt>Motivo</dt><dd id="d-motivo">Clase</dd></div>
+            <div><dt>Fecha</dt><dd id="d-fecha">{{ primer_evento.fecha }}</dd></div>
+            <div><dt>Horario</dt><dd id="d-horario">{{ primer_evento.horario }}</dd></div>
+            <div><dt>Motivo</dt><dd id="d-motivo">{{ primer_evento.motivo }}</dd></div>
           </dl>
-          <div class="detail__actions" id="d-propia">
-            <a class="btn btn--secondary btn--block" href="#">Ver en Mis solicitudes</a>
-            <a class="btn btn--secondary btn--block btn--danger-ghost" href="#">Cancelar reserva</a>
+          <div class="detail__actions" id="d-propia" {% if primer_evento.tipo != 'mine' %}hidden{% endif %}>
+            <a class="btn btn--secondary btn--block" href="{% url 'mis_solicitudes' %}">Ver en Mis solicitudes</a>
           </div>
-          <div class="detail__actions" id="d-ajena" hidden>
+          <div class="detail__actions" id="d-ajena" {% if primer_evento.tipo == 'mine' %}hidden{% endif %}>
             <p class="muted" style="font-size: 13px;">Este horario ya está reservado. Puedes elegir un bloque libre o buscar otro espacio.</p>
             <a class="btn btn--primary btn--block" href="{% url 'buscar_disponibilidad' %}">Buscar otro espacio</a>
           </div>
+          {% else %}
+          <div>
+            <span class="badge badge--success" id="d-badge">Todo disponible</span>
+            <h2 class="card__title" style="margin-top: 12px;" id="d-espacio">{% if espacio_actual %}{{ espacio_actual.nombre }}{% else %}Sin reservas{% endif %}</h2>
+          </div>
+          <p class="muted" style="font-size: 13px;">No hay reservas registradas en esta vista. Haz clic en cualquier celda <strong>Disponible</strong> para crear una reserva.</p>
+          {% endif %}
         </div>
       </aside>
     </div>
   </main>
 
-  <!-- Solo para la demostración de la plantilla -->
   <script>
-    // Llega desde "Ver horario": calendario.html?espacio=l3
-    const espacio = new URLSearchParams(location.search).get('espacio');
-    const select = document.getElementById('espacio');
-    if (espacio && select.querySelector('option[value="' + espacio + '"]')) {
-      select.value = espacio;
-      const nombre = select.options[select.selectedIndex].text;
-      document.getElementById('titulo').textContent = 'Horario de ' + nombre;
-      document.getElementById('ruta').hidden = false;
-    }
-
-    // Al tocar un bloque ocupado se muestra su detalle a la derecha
     const etiquetas = { mine: 'Tu reserva · Aprobada', busy: 'Ocupado', exam: 'Ocupado · Examen' };
     const clases = { mine: 'badge--success', busy: 'badge--neutral', exam: 'badge--warning' };
     document.querySelectorAll('.event').forEach(function (ev) {
@@ -255,8 +237,10 @@
         document.getElementById('d-fecha').textContent = ev.dataset.fecha;
         document.getElementById('d-horario').textContent = ev.dataset.horario;
         document.getElementById('d-motivo').textContent = ev.dataset.motivo;
-        document.getElementById('d-propia').hidden = t !== 'mine';
-        document.getElementById('d-ajena').hidden = t === 'mine';
+        const propia = document.getElementById('d-propia');
+        const ajena = document.getElementById('d-ajena');
+        if (propia) propia.hidden = t !== 'mine';
+        if (ajena) ajena.hidden = t === 'mine';
       });
     });
   </script>

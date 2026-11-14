@@ -9,5 +9,5 @@ urlpatterns = [
     path("salir/", views.salir, name="salir"),
     
     path("disponibilidad/calandario", views.cargarVistaCalendario, name="calendario"),
-    path("disponibilidad/solicitudes", views.cargarVistaSolicitudes, name="mis_solicitudes"),
+    path("disponibilidad/solicitudes", views.consultar_solicitudes, name="mis_solicitudes"),
 ]
