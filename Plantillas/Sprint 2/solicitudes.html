@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solicitudes · ReservaEspacios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <!-- Barra superior · Administrador -->
+  <header class="topbar">
+    <a class="brand" href="../espacios.html">
+      <span class="brand__mark">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </span>
+      ReservaEspacios
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="../espacios.html">Espacios</a>
+      <a href="solicitudes.html" class="is-active" aria-current="page">Solicitudes</a>
+      <a href="calendario.html">Calendario</a>
+    </nav>
+    <div class="user">
+      <span class="avatar" aria-hidden="true">AD</span>
+      <div class="user__info">
+        <span class="user__name">Nombre del administrador</span>
+        <span class="user__role">Administrador</span>
+      </div>
+      <a class="btn btn--ghost" href="../login.html" title="Cerrar sesión">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+        <span class="hide-sm">Salir</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div>
+      <h1 class="page-title">Solicitudes de reserva</h1>
+      <p class="page-subtitle">Las reservas se aprueban solas cuando el espacio está libre. Desde aquí puedes consultarlas y cancelarlas indicando el motivo.</p>
+    </div>
+
+    <!-- Aviso después de cancelar: quitar "hidden" cuando corresponda -->
+    <div class="alert alert--success" role="status" id="aviso-cancelada" hidden>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+      <span>Reserva cancelada. El usuario verá el motivo en Mis solicitudes y el horario quedó libre.</span>
+    </div>
+
+    <!-- Filtros -->
+    <form class="toolbar" action="#" method="get" role="search">
+      <div class="field field--search">
+        <label class="field__label" for="buscar">Buscar</label>
+        <div class="input-icon">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input class="input" id="buscar" name="q" type="search" placeholder="Usuario, correo o espacio">
+        </div>
+      </div>
+      <div class="field field--select">
+        <label class="field__label" for="f-espacio">Espacio</label>
+        <select class="select" id="f-espacio" name="espacio">
+          <option>Todos</option>
+          <option>Aula B-21</option>
+          <option>Aula B-22</option>
+          <option>Laboratorio L-3</option>
+          <option>Auditorio A-1</option>
+        </select>
+      </div>
+      <div class="field field--select">
+        <label class="field__label" for="f-estado">Estado</label>
+        <select class="select" id="f-estado" name="estado">
+          <option>Todos</option>
+          <option>Aprobada</option>
+          <option>Cancelada por el usuario</option>
+          <option>Cancelada por el administrador</option>
+        </select>
+      </div>
+      <div class="field field--select">
+        <label class="field__label" for="f-fecha">Fecha</label>
+        <input class="input" id="f-fecha" name="fecha" type="date" value="2026-11-16">
+      </div>
+    </form>
+
+    <section class="card table-card" aria-label="Lista de solicitudes">
+      <div class="table-scroll">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Usuario</th>
+              <th scope="col">Espacio</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Horario</th>
+              <th scope="col">Motivo</th>
+              <th scope="col">Estado</th>
+              <th scope="col" class="actions"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="person"><span class="avatar" aria-hidden="true">ML</span><div><div class="person__name">María López</div><div class="muted">ml21001@ues.edu.sv</div></div></div></td>
+              <td>Aula B-21</td>
+              <td class="num">Lun 16 nov</td>
+              <td class="num">07:00 – 08:40</td>
+              <td>Clase</td>
+              <td><span class="badge badge--success">Aprobada</span></td>
+              <td class="actions"><button class="btn btn--ghost btn--sm btn--danger-ghost" type="button" data-cancelar data-usuario="María López" data-espacio="Aula B-21" data-fecha="Lunes 16 de noviembre" data-horario="07:00 – 08:40">Cancelar</button></td>
+            </tr>
+            <tr>
+              <td><div class="person"><span class="avatar" aria-hidden="true">CM</span><div><div class="person__name">Carlos Martínez</div><div class="muted">cm19045@ues.edu.sv</div></div></div></td>
+              <td>Laboratorio L-3</td>
+              <td class="num">Lun 16 nov</td>
+              <td class="num">08:50 – 10:30</td>
+              <td>Clase</td>
+              <td><span class="badge badge--success">Aprobada</span></td>
+              <td class="actions"><button class="btn btn--ghost btn--sm btn--danger-ghost" type="button" data-cancelar data-usuario="Carlos Martínez" data-espacio="Laboratorio L-3" data-fecha="Lunes 16 de noviembre" data-horario="08:50 – 10:30">Cancelar</button></td>
+            </tr>
+            <tr>
+              <td><div class="person"><span class="avatar" aria-hidden="true">AR</span><div><div class="person__name">Ana Rivera</div><div class="muted">ar20012@ues.edu.sv</div></div></div></td>
+              <td>Auditorio A-1</td>
+              <td class="num">Mar 17 nov</td>
+              <td class="num">10:40 – 12:20</td>
+              <td>Evento</td>
+              <td><span class="badge badge--success">Aprobada</span></td>
+              <td class="actions"><button class="btn btn--ghost btn--sm btn--danger-ghost" type="button" data-cancelar data-usuario="Ana Rivera" data-espacio="Auditorio A-1" data-fecha="Martes 17 de noviembre" data-horario="10:40 – 12:20">Cancelar</button></td>
+            </tr>
+            <tr>
+              <td><div class="person"><span class="avatar" aria-hidden="true">NU</span><div><div class="person__name">Nombre de usuario</div><div class="muted">nu22030@ues.edu.sv</div></div></div></td>
+              <td>Laboratorio L-3</td>
+              <td class="num">Mié 18 nov</td>
+              <td class="num">09:00 – 11:00</td>
+              <td>Examen</td>
+              <td><span class="badge badge--success">Aprobada</span></td>
+              <td class="actions"><button class="btn btn--ghost btn--sm btn--danger-ghost" type="button" data-cancelar data-usuario="Nombre de usuario" data-espacio="Laboratorio L-3" data-fecha="Miércoles 18 de noviembre" data-horario="09:00 – 11:00">Cancelar</button></td>
+            </tr>
+            <tr>
+              <td><div class="person"><span class="avatar" aria-hidden="true">JH</span><div><div class="person__name">José Hernández</div><div class="muted">jh18077@ues.edu.sv</div></div></div></td>
+              <td>Aula B-22</td>
+              <td class="num">Jue 19 nov</td>
+              <td class="num">13:20 – 15:00</td>
+              <td>Reunión</td>
+              <td><span class="badge badge--neutral">Cancelada por el usuario</span></td>
+              <td class="actions"><span class="muted">—</span></td>
+            </tr>
+            <tr>
+              <td><div class="person"><span class="avatar" aria-hidden="true">NU</span><div><div class="person__name">Nombre de usuario</div><div class="muted">nu22030@ues.edu.sv</div></div></div></td>
+              <td>Auditorio A-1</td>
+              <td class="num">Vie 20 nov</td>
+              <td class="num">13:20 – 15:00</td>
+              <td>Defensa</td>
+              <td><span class="badge badge--danger" title="Evento institucional: ceremonia de graduación">Cancelada por el administrador</span></td>
+              <td class="actions"><span class="muted">—</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <span>Mostrando 6 de 42 solicitudes</span>
+        <div class="pagination">
+          <a class="btn btn--secondary btn--sm" href="#">Anterior</a>
+          <a class="btn btn--secondary btn--sm" href="#">Siguiente</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal · Cancelar reserva con motivo (HU04) -->
+  <dialog class="modal" id="modal-cancelar" aria-labelledby="modal-cancelar-titulo">
+    <form method="dialog" id="form-cancelar">
+      <div class="modal__body">
+        <span class="modal__icon">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+        </span>
+        <div>
+          <h2 class="modal__title" id="modal-cancelar-titulo">Cancelar reserva</h2>
+          <p class="modal__text">El usuario verá el motivo en Mis solicitudes y el horario quedará libre.</p>
+        </div>
+        <dl class="summary-list">
+          <div><dt>Usuario</dt><dd data-campo="usuario">María López</dd></div>
+          <div><dt>Espacio</dt><dd data-campo="espacio">Aula B-21</dd></div>
+          <div><dt>Fecha</dt><dd data-campo="fecha">Lunes 16 de noviembre</dd></div>
+          <div><dt>Horario</dt><dd data-campo="horario">07:00 – 08:40</dd></div>
+        </dl>
+        <fieldset class="fieldset">
+          <legend class="field__label">Motivo de la cancelación</legend>
+          <div class="choices">
+            <label class="choice"><input type="radio" name="motivo" value="mantenimiento" checked><span>Mantenimiento</span></label>
+            <label class="choice"><input type="radio" name="motivo" value="evento"><span>Evento institucional</span></label>
+            <label class="choice"><input type="radio" name="motivo" value="uso"><span>Uso no permitido</span></label>
+            <label class="choice"><input type="radio" name="motivo" value="otro"><span>Otro</span></label>
+          </div>
+        </fieldset>
+        <div class="field">
+          <label class="field__label" for="detalle-motivo">Mensaje para el usuario</label>
+          <textarea class="textarea" id="detalle-motivo" name="detalle" required placeholder="Ej. El aula estará en mantenimiento eléctrico ese día. Puedes usar el Aula B-22."></textarea>
+          <span class="field__hint">Obligatorio. Explica por qué se cancela y, si puedes, sugiere una alternativa.</span>
+        </div>
+      </div>
+      <div class="modal__actions">
+        <button class="btn btn--secondary" value="volver" formnovalidate>Volver</button>
+        <button class="btn btn--danger" value="confirmar">Cancelar reserva</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Solo para la demostración de la plantilla: abre el modal con los datos de la fila -->
+  <script>
+    const modal = document.getElementById('modal-cancelar');
+    document.querySelectorAll('[data-cancelar]').forEach(function (boton) {
+      boton.addEventListener('click', function () {
+        modal.querySelectorAll('[data-campo]').forEach(function (dd) {
+          dd.textContent = boton.dataset[dd.dataset.campo];
+        });
+        document.getElementById('form-cancelar').reset();
+        modal.showModal();
+      });
+    });
+    modal.addEventListener('close', function () {
+      if (modal.returnValue === 'confirmar') {
+        document.getElementById('aviso-cancelada').hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>

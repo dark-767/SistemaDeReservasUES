@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calendario · ReservaEspacios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <!-- Barra superior · Usuario.
+       Para el administrador se usa la misma pantalla con su barra (Espacios, Solicitudes, Calendario)
+       y el panel de detalle muestra además quién hizo la reserva y el botón "Cancelar con motivo". -->
+  <header class="topbar">
+    <a class="brand" href="../buscar-disponibilidad.html">
+      <span class="brand__mark">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </span>
+      ReservaEspacios
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="../buscar-disponibilidad.html">Buscar espacios</a>
+      <a href="mis-solicitudes.html">Mis solicitudes</a>
+      <a href="calendario.html" class="is-active" aria-current="page">Calendario</a>
+    </nav>
+    <div class="user">
+      <span class="avatar" aria-hidden="true">NU</span>
+      <div class="user__info">
+        <span class="user__name">Nombre de usuario</span>
+        <span class="user__role">Usuario</span>
+      </div>
+      <a class="btn btn--ghost" href="../login.html" title="Cerrar sesión">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+        <span class="hide-sm">Salir</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="page cal">
+    <div>
+      <!-- Ruta visible solo al llegar desde "Ver horario" en Buscar espacios -->
+      <nav class="breadcrumb" aria-label="Ruta" id="ruta" hidden>
+        <a href="../buscar-disponibilidad.html">Buscar espacios</a>
+        <span aria-hidden="true">/</span>
+        <span>Horario del espacio</span>
+      </nav>
+      <h1 class="page-title" id="titulo">Calendario de reservas</h1>
+      <p class="page-subtitle">Consulta qué horarios están ocupados y reserva los que están libres.</p>
+    </div>
+
+    <div class="cal-layout">
+      <section class="card cal-card" aria-label="Calendario">
+        <!-- Filtros -->
+        <form class="cal-toolbar" action="#" method="get">
+          <div class="cal-filters">
+            <div class="field" style="width: auto;">
+              <span class="field__label" id="vista-label">Vista</span>
+              <div class="segmented" role="radiogroup" aria-labelledby="vista-label">
+                <label><input type="radio" name="vista" id="vista-semana" value="semana" checked><span>Semana</span></label>
+                <label><input type="radio" name="vista" id="vista-dia" value="dia"><span>Día</span></label>
+              </div>
+            </div>
+            <div class="field solo-semana">
+              <label class="field__label" for="espacio">Espacio</label>
+              <select class="select" id="espacio" name="espacio">
+                <option value="b21" selected>Aula B-21</option>
+                <option value="b22">Aula B-22</option>
+                <option value="l3">Laboratorio L-3</option>
+                <option value="a1">Auditorio A-1</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="field__label" for="tipo">Tipo de espacio</label>
+              <select class="select" id="tipo" name="tipo">
+                <option>Todos</option>
+                <option>Aula</option>
+                <option>Laboratorio</option>
+                <option>Auditorio</option>
+              </select>
+            </div>
+          </div>
+          <div class="week-nav">
+            <a class="btn btn--secondary btn--icon" href="#" aria-label="Anterior">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+            </a>
+            <span class="week-nav__label vista-semana">16 – 21 de noviembre</span>
+            <span class="week-nav__label vista-dia">Lunes 16 de noviembre</span>
+            <a class="btn btn--secondary btn--icon" href="#" aria-label="Siguiente">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </a>
+            <a class="btn btn--secondary btn--sm" href="#">Hoy</a>
+          </div>
+        </form>
+
+        <!-- Vista semana: un espacio, días en columnas -->
+        <div class="table-scroll vista-semana">
+          <div class="calendar" role="grid" aria-label="Semana del 16 al 21 de noviembre, Aula B-21">
+            <div class="calendar__corner">Bloque</div>
+            <div class="calendar__head">Lun<strong>16</strong></div>
+            <div class="calendar__head">Mar<strong>17</strong></div>
+            <div class="calendar__head">Mié<strong>18</strong></div>
+            <div class="calendar__head">Jue<strong>19</strong></div>
+            <div class="calendar__head">Vie<strong>20</strong></div>
+            <div class="calendar__head">Sáb<strong>21</strong></div>
+        <div class="calendar__time">07:00 – 08:40</div>
+        <div class="calendar__cell"><button class="event event--mine is-selected" type="button" data-tipo="mine" data-espacio="Aula B-21" data-fecha="Lunes 16 de noviembre" data-horario="07:00 – 08:40" data-motivo="Clase"><strong>Tu reserva</strong>Clase</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Miércoles 18 de noviembre" data-horario="07:00 – 08:40" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Sábado 21 de noviembre" data-horario="07:00 – 08:40" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
+        <div class="calendar__time">08:50 – 10:30</div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Lunes 16 de noviembre" data-horario="08:50 – 10:30" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Martes 17 de noviembre" data-horario="08:50 – 10:30" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Viernes 20 de noviembre" data-horario="08:50 – 10:30" data-motivo="Reunión"><strong>Reservado</strong>Reunión</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__time">10:40 – 12:20</div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><button class="event event--exam" type="button" data-tipo="exam" data-espacio="Aula B-21" data-fecha="Martes 17 de noviembre" data-horario="10:00 – 12:00" data-motivo="Examen"><strong>Examen</strong>10:00 – 12:00</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Jueves 19 de noviembre" data-horario="10:40 – 12:20" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__time">13:20 – 15:00</div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Lunes 16 de noviembre" data-horario="13:20 – 15:00" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Jueves 19 de noviembre" data-horario="13:20 – 15:00" data-motivo="Defensa"><strong>Reservado</strong>Defensa</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell calendar__cell--off"><span class="sr-only">No disponible</span></div>
+        <div class="calendar__time">15:10 – 16:50</div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Miércoles 18 de noviembre" data-horario="15:10 – 16:50" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell calendar__cell--off"><span class="sr-only">No disponible</span></div>
+        <div class="calendar__time">17:00 – 18:40</div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Martes 17 de noviembre" data-horario="17:00 – 18:40" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Viernes 20 de noviembre" data-horario="17:00 – 18:40" data-motivo="Evento"><strong>Reservado</strong>Evento</button></div>
+        <div class="calendar__cell calendar__cell--off"><span class="sr-only">No disponible</span></div>
+          </div>
+        </div>
+
+        <!-- Vista día: todos los espacios, espacios en columnas -->
+        <div class="table-scroll vista-dia">
+          <div class="calendar calendar--day" role="grid" aria-label="Lunes 16 de noviembre, todos los espacios">
+            <div class="calendar__corner">Bloque</div>
+            <div class="calendar__head">Aula<strong>B-21</strong></div>
+            <div class="calendar__head">Aula<strong>B-22</strong></div>
+            <div class="calendar__head">Laboratorio<strong>L-3</strong></div>
+            <div class="calendar__head">Auditorio<strong>A-1</strong></div>
+        <div class="calendar__time">07:00 – 08:40</div>
+        <div class="calendar__cell"><button class="event event--mine" type="button" data-tipo="mine" data-espacio="Aula B-21" data-fecha="Lunes 16 de noviembre" data-horario="07:00 – 08:40" data-motivo="Clase"><strong>Tu reserva</strong>Clase</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__time">08:50 – 10:30</div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Lunes 16 de noviembre" data-horario="08:50 – 10:30" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Laboratorio L-3" data-fecha="Lunes 16 de noviembre" data-horario="08:50 – 10:30" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__time">10:40 – 12:20</div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-22" data-fecha="Lunes 16 de noviembre" data-horario="10:40 – 12:20" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Auditorio A-1" data-fecha="Lunes 16 de noviembre" data-horario="10:40 – 12:20" data-motivo="Evento"><strong>Reservado</strong>Evento</button></div>
+        <div class="calendar__time">13:20 – 15:00</div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-21" data-fecha="Lunes 16 de noviembre" data-horario="13:20 – 15:00" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__time">15:10 – 16:50</div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Aula B-22" data-fecha="Lunes 16 de noviembre" data-horario="15:10 – 16:50" data-motivo="Reunión"><strong>Reservado</strong>Reunión</button></div>
+        <div class="calendar__cell"><button class="event event--busy" type="button" data-tipo="busy" data-espacio="Laboratorio L-3" data-fecha="Lunes 16 de noviembre" data-horario="15:10 – 16:50" data-motivo="Clase"><strong>Reservado</strong>Clase</button></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__time">17:00 – 18:40</div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell"><a class="free" href="../solicitar-reserva.html">Disponible</a></div>
+        <div class="calendar__cell calendar__cell--off"><span class="sr-only">No disponible</span></div>
+          </div>
+        </div>
+
+        <div class="legend" aria-label="Leyenda">
+          <span><i class="l-mine"></i>Tu reserva</span>
+          <span><i class="l-busy"></i>Ocupado</span>
+          <span><i class="l-exam"></i>Examen (horario libre)</span>
+          <span><i class="l-free"></i>Disponible</span>
+          <span><i class="l-off"></i>Fuera del horario del espacio</span>
+        </div>
+      </section>
+
+      <!-- Detalle del bloque seleccionado -->
+      <aside class="card detail" aria-live="polite">
+        <div class="card__body">
+          <div>
+            <span class="badge badge--success" id="d-badge">Tu reserva · Aprobada</span>
+            <h2 class="card__title" style="margin-top: 12px;" id="d-espacio">Aula B-21</h2>
+          </div>
+          <dl class="summary-list">
+            <div><dt>Fecha</dt><dd id="d-fecha">Lunes 16 de noviembre</dd></div>
+            <div><dt>Horario</dt><dd id="d-horario">07:00 – 08:40</dd></div>
+            <div><dt>Motivo</dt><dd id="d-motivo">Clase</dd></div>
+          </dl>
+          <div class="detail__actions" id="d-propia">
+            <a class="btn btn--secondary btn--block" href="mis-solicitudes.html">Ver en Mis solicitudes</a>
+            <a class="btn btn--secondary btn--block btn--danger-ghost" href="mis-solicitudes.html">Cancelar reserva</a>
+          </div>
+          <div class="detail__actions" id="d-ajena" hidden>
+            <p class="muted" style="font-size: 13px;">Este horario ya está reservado. Puedes elegir un bloque libre o buscar otro espacio.</p>
+            <a class="btn btn--primary btn--block" href="../buscar-disponibilidad.html">Buscar otro espacio</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Solo para la demostración de la plantilla -->
+  <script>
+    // Llega desde "Ver horario": calendario.html?espacio=l3
+    const espacio = new URLSearchParams(location.search).get('espacio');
+    const select = document.getElementById('espacio');
+    if (espacio && select.querySelector('option[value="' + espacio + '"]')) {
+      select.value = espacio;
+      const nombre = select.options[select.selectedIndex].text;
+      document.getElementById('titulo').textContent = 'Horario de ' + nombre;
+      document.getElementById('ruta').hidden = false;
+    }
+
+    // Al tocar un bloque ocupado se muestra su detalle a la derecha
+    const etiquetas = { mine: 'Tu reserva · Aprobada', busy: 'Ocupado', exam: 'Ocupado · Examen' };
+    const clases = { mine: 'badge--success', busy: 'badge--neutral', exam: 'badge--warning' };
+    document.querySelectorAll('.event').forEach(function (ev) {
+      ev.addEventListener('click', function () {
+        document.querySelectorAll('.event.is-selected').forEach(function (e) { e.classList.remove('is-selected'); });
+        ev.classList.add('is-selected');
+        const t = ev.dataset.tipo;
+        const badge = document.getElementById('d-badge');
+        badge.className = 'badge ' + clases[t];
+        badge.textContent = etiquetas[t];
+        document.getElementById('d-espacio').textContent = ev.dataset.espacio;
+        document.getElementById('d-fecha').textContent = ev.dataset.fecha;
+        document.getElementById('d-horario').textContent = ev.dataset.horario;
+        document.getElementById('d-motivo').textContent = ev.dataset.motivo;
+        document.getElementById('d-propia').hidden = t !== 'mine';
+        document.getElementById('d-ajena').hidden = t === 'mine';
+      });
+    });
+  </script>
+</body>
+</html>

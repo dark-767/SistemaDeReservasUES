@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mis solicitudes · ReservaEspacios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <!-- Barra superior · Usuario -->
+  <header class="topbar">
+    <a class="brand" href="../buscar-disponibilidad.html">
+      <span class="brand__mark">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </span>
+      ReservaEspacios
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="../buscar-disponibilidad.html">Buscar espacios</a>
+      <a href="mis-solicitudes.html" class="is-active" aria-current="page">Mis solicitudes</a>
+      <a href="calendario.html">Calendario</a>
+    </nav>
+    <div class="user">
+      <span class="avatar" aria-hidden="true">NU</span>
+      <div class="user__info">
+        <span class="user__name">Nombre de usuario</span>
+        <span class="user__role">Usuario</span>
+      </div>
+      <a class="btn btn--ghost" href="../login.html" title="Cerrar sesión">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+        <span class="hide-sm">Salir</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Mis solicitudes</h1>
+        <p class="page-subtitle">Revisa el estado de tus reservas y cancela las que ya no vas a usar.</p>
+      </div>
+      <a class="btn btn--primary" href="../buscar-disponibilidad.html">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>
+        Nueva reserva
+      </a>
+    </div>
+
+    <!-- Aviso después de cancelar: quitar "hidden" cuando corresponda -->
+    <div class="alert alert--success" role="status" id="aviso-cancelada" hidden>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+      <span>Reserva cancelada. El horario quedó libre en el calendario.</span>
+    </div>
+
+    <!-- No hay pestaña "Aprobadas": toda reserva del usuario se aprueba sola.
+         Próximas = reservas que todavía no ocurren y se pueden cancelar. -->
+    <nav class="tabs" aria-label="Filtrar reservas">
+      <a href="#" class="is-active" aria-current="true">Todas <span class="tabs__count">5</span></a>
+      <a href="#">Próximas <span class="tabs__count">2</span></a>
+      <a href="#">Canceladas <span class="tabs__count">2</span></a>
+    </nav>
+
+    <section class="booking-list" aria-label="Lista de solicitudes">
+
+      <!-- Aprobada y próxima: se puede cancelar -->
+      <article class="card booking">
+        <div class="booking__date" aria-hidden="true"><span class="booking__day">16</span><span class="booking__month">nov</span></div>
+        <div class="booking__body">
+          <div class="booking__title"><span class="booking__name">Aula B-21</span><span class="badge badge--success">Aprobada</span></div>
+          <div class="meta">
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Lunes 16 de noviembre</span>
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>07:00 – 08:40 · Hora clase</span>
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5"/></svg>Clase · Refuerzo de Análisis de Sistemas, grupo 02</span>
+          </div>
+        </div>
+        <div class="booking__actions">
+          <a class="btn btn--secondary btn--sm" href="calendario.html">Ver en calendario</a>
+          <button class="btn btn--secondary btn--sm btn--danger-ghost" type="button"
+            data-cancelar data-espacio="Aula B-21" data-fecha="Lunes 16 de noviembre" data-horario="07:00 – 08:40" data-motivo="Clase">Cancelar</button>
+        </div>
+      </article>
+
+      <!-- Aprobada y próxima, examen con horario modificable -->
+      <article class="card booking">
+        <div class="booking__date" aria-hidden="true"><span class="booking__day">18</span><span class="booking__month">nov</span></div>
+        <div class="booking__body">
+          <div class="booking__title"><span class="booking__name">Laboratorio L-3</span><span class="badge badge--success">Aprobada</span></div>
+          <div class="meta">
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Miércoles 18 de noviembre</span>
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>09:00 – 11:00 · Examen</span>
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5"/></svg>Examen · Segundo parcial de Programación I</span>
+          </div>
+        </div>
+        <div class="booking__actions">
+          <a class="btn btn--secondary btn--sm" href="calendario.html?espacio=l3">Ver en calendario</a>
+          <button class="btn btn--secondary btn--sm btn--danger-ghost" type="button"
+            data-cancelar data-espacio="Laboratorio L-3" data-fecha="Miércoles 18 de noviembre" data-horario="09:00 – 11:00" data-motivo="Examen">Cancelar</button>
+        </div>
+      </article>
+
+      <!-- Cancelada por el administrador: se muestra el motivo (HU04) -->
+      <article class="card booking booking--off">
+        <div class="booking__date" aria-hidden="true"><span class="booking__day">20</span><span class="booking__month">nov</span></div>
+        <div class="booking__body">
+          <div class="booking__title"><span class="booking__name">Auditorio A-1</span><span class="badge badge--danger">Cancelada por el administrador</span></div>
+          <div class="meta">
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Viernes 20 de noviembre</span>
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>13:20 – 15:00 · Hora clase</span>
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5"/></svg>Defensa o presentación</span>
+          </div>
+          <div class="note">
+            <svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span><strong>Motivo del administrador:</strong> Evento institucional. El auditorio se usará para la ceremonia de graduación. Puedes reservar el Auditorio A-2 en el mismo horario.</span>
+          </div>
+        </div>
+        <div class="booking__actions">
+          <a class="btn btn--secondary btn--sm" href="../buscar-disponibilidad.html">Buscar otro espacio</a>
+        </div>
+      </article>
+
+      <!-- Cancelada por el propio usuario -->
+      <article class="card booking booking--off">
+        <div class="booking__date" aria-hidden="true"><span class="booking__day">12</span><span class="booking__month">nov</span></div>
+        <div class="booking__body">
+          <div class="booking__title"><span class="booking__name">Aula B-22</span><span class="badge badge--neutral">Cancelada por ti</span></div>
+          <div class="meta">
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Jueves 12 de noviembre</span>
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>10:40 – 12:20 · Hora clase</span>
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5"/></svg>Reunión · Coordinación de proyecto</span>
+          </div>
+        </div>
+        <div class="booking__actions"></div>
+      </article>
+
+      <!-- Aprobada pero ya pasó: no se puede cancelar -->
+      <article class="card booking booking--off">
+        <div class="booking__date" aria-hidden="true"><span class="booking__day">9</span><span class="booking__month">nov</span></div>
+        <div class="booking__body">
+          <div class="booking__title"><span class="booking__name">Aula B-21</span><span class="badge badge--success">Aprobada</span></div>
+          <div class="meta">
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Lunes 9 de noviembre</span>
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>07:00 – 08:40 · Hora clase</span>
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5"/></svg>Clase</span>
+          </div>
+        </div>
+        <div class="booking__actions"><span class="muted">Ya se realizó</span></div>
+      </article>
+    </section>
+
+    <!-- Estado vacío: mostrar en lugar de la lista cuando no hay solicitudes -->
+    <section class="card empty" hidden>
+      <span class="empty__icon">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </span>
+      <h2>Aún no tienes reservas</h2>
+      <p>Busca un aula o laboratorio libre y haz tu primera reserva. Aparecerá aquí con su estado.</p>
+      <a class="btn btn--primary" href="../buscar-disponibilidad.html">Buscar espacios</a>
+    </section>
+  </main>
+
+  <!-- Modal · Confirmar cancelación (HU07) -->
+  <dialog class="modal" id="modal-cancelar" aria-labelledby="modal-cancelar-titulo">
+    <form method="dialog">
+      <div class="modal__body">
+        <span class="modal__icon">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/></svg>
+        </span>
+        <div>
+          <h2 class="modal__title" id="modal-cancelar-titulo">¿Cancelar esta reserva?</h2>
+          <p class="modal__text">El horario quedará libre para otras personas. Esta acción no se puede deshacer.</p>
+        </div>
+        <dl class="summary-list">
+          <div><dt>Espacio</dt><dd data-campo="espacio">Aula B-21</dd></div>
+          <div><dt>Fecha</dt><dd data-campo="fecha">Lunes 16 de noviembre</dd></div>
+          <div><dt>Horario</dt><dd data-campo="horario">07:00 – 08:40</dd></div>
+          <div><dt>Motivo</dt><dd data-campo="motivo">Clase</dd></div>
+        </dl>
+      </div>
+      <div class="modal__actions">
+        <button class="btn btn--secondary" value="volver">No, mantener</button>
+        <button class="btn btn--danger" value="confirmar">Sí, cancelar reserva</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Solo para la demostración de la plantilla: abre el modal con los datos de la fila -->
+  <script>
+    const modal = document.getElementById('modal-cancelar');
+    document.querySelectorAll('[data-cancelar]').forEach(function (boton) {
+      boton.addEventListener('click', function () {
+        modal.querySelectorAll('[data-campo]').forEach(function (dd) {
+          dd.textContent = boton.dataset[dd.dataset.campo];
+        });
+        modal.showModal();
+      });
+    });
+    modal.addEventListener('close', function () {
+      if (modal.returnValue === 'confirmar') {
+        document.getElementById('aviso-cancelada').hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reserva confirmada · ReservaEspacios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <!-- Barra superior · Usuario -->
+  <header class="topbar">
+    <a class="brand" href="../buscar-disponibilidad.html">
+      <span class="brand__mark">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </span>
+      ReservaEspacios
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="../buscar-disponibilidad.html" class="is-active" aria-current="page">Buscar espacios</a>
+      <a href="mis-solicitudes.html">Mis solicitudes</a>
+      <a href="calendario.html">Calendario</a>
+    </nav>
+    <div class="user">
+      <span class="avatar" aria-hidden="true">NU</span>
+      <div class="user__info">
+        <span class="user__name">Nombre de usuario</span>
+        <span class="user__role">Usuario</span>
+      </div>
+      <a class="btn btn--ghost" href="../login.html" title="Cerrar sesión">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+        <span class="hide-sm">Salir</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="success" aria-labelledby="titulo">
+      <span class="success__icon">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+      </span>
+      <div>
+        <h1 class="page-title" id="titulo">¡Reserva confirmada!</h1>
+        <p class="page-subtitle">El espacio estaba libre, así que tu reserva quedó aprobada y ya aparece en el calendario.</p>
+      </div>
+
+      <div class="card summary">
+        <div class="space-card__media">
+          <span class="badge badge--plain">Aula</span>
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg>
+        </div>
+        <div class="summary__body">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+            <h2 class="card__title">Aula B-21</h2>
+            <span class="badge badge--success">Aprobada</span>
+          </div>
+          <dl class="summary-list">
+            <div><dt>Fecha</dt><dd>Lunes 16 de noviembre</dd></div>
+            <div><dt>Horario</dt><dd>07:00 – 08:40 · Hora clase</dd></div>
+            <div><dt>Motivo</dt><dd>Clase</dd></div>
+            <div><dt>Asistentes</dt><dd>40 de 60 personas</dd></div>
+            <div><dt>Código</dt><dd>RES-2026-0142</dd></div>
+          </dl>
+        </div>
+        <div class="summary__status">
+          <span>Si ya no la vas a usar, cancélala desde Mis solicitudes para liberar el horario.</span>
+        </div>
+      </div>
+
+      <div class="success__actions">
+        <a class="btn btn--secondary" href="../buscar-disponibilidad.html">Hacer otra reserva</a>
+        <a class="btn btn--secondary" href="calendario.html">Ver en calendario</a>
+        <a class="btn btn--primary" href="mis-solicitudes.html">Ir a Mis solicitudes</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
