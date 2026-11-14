@@ -21,7 +21,7 @@
     <nav class="nav" aria-label="Principal">
       <a href="{% url 'buscar_disponibilidad' %}" class="is-active" aria-current="page">Buscar espacios</a>
       <a href="#">Mis solicitudes</a>
-      <a href="#">Calendario</a>
+      <a href="{% url 'calendario' %}">Calendario</a>
     </nav>
     <div class="user">
       <span class="avatar" aria-hidden="true">{{ iniciales }}</span>

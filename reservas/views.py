@@ -247,6 +247,9 @@ def confirmacion_reserva(request, pk):
         },
     )
 
+@login_required
+def cargarVistaCalendario(request): 
+    return render(request,"reservas/calendario.html")
 
 @require_POST
 def salir(request):
