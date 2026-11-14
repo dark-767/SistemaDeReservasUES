@@ -14,20 +14,16 @@ def hay_administrador():
     return Usuario.objects.filter(rol=Usuario.Rol.ADMIN).exists()
 
 
+
 def inicio(request):
-    """
-    Primera pantalla del sistema.
-    - Sin administrador (primer uso): bienvenida que lleva a crear la cuenta.
-    - Con administrador: inicio de sesión.
-    """
     if not hay_administrador():
-        return render(request,"usuarios/bienvenida.html")
+        return render(request, "usuarios/bienvenida.html")
 
     if not request.user.is_authenticated:
         return redirect("login")
-    
-    #Si ya hay admin y el usuario inicio sesión, se renderiza su vista principal
+
     return render(request, "usuarios/index.html")
+
 
 
 def login(request):
@@ -50,26 +46,30 @@ def login(request):
     return render(request, "usuarios/login.html", {"form": form})
 
 
+
 def registro(request):
-    """
-    Registro de la cuenta de administrador (solo en el primer uso).
-    Cuando ya existe un administrador, las cuentas las crea él, no se registran solas.
-    """
-    if hay_administrador():
-        return redirect("login")
+    """Registro público: siempre crea usuarios normales."""
+
+    if not hay_administrador():
+        return redirect("inicio")
 
     if request.method == "POST":
         form = RegistroForm(request.POST)
+
         if form.is_valid():
             try:
-                usuario = form.guardar()
-            except IntegrityError:  # el correo se registró justo en este momento
-                form.add_error("correo", "Este correo electrónico ya está registrado.")
+                usuario = form.guardar(
+                    rol=Usuario.Rol.USUARIO
+                )
+            except IntegrityError:
+                form.add_error(
+                    "correo",
+                    "Este correo electrónico ya está registrado."
+                )
             except DatabaseError:
                 form.add_error(
                     None,
-                    "No se pudo crear la cuenta por un problema con la base de datos. "
-                    "Inténtalo de nuevo más tarde.",
+                    "No se pudo crear la cuenta. Inténtalo de nuevo."
                 )
             else:
                 request.session[SESION_REGISTRO] = {
@@ -79,7 +79,59 @@ def registro(request):
                 return redirect("registro_exitoso")
     else:
         form = RegistroForm()
-    return render(request, "usuarios/registro.html", {"form": form})
+
+    return render(
+        request,
+        "usuarios/registro.html",
+        {
+            "form": form,
+            "es_registro_admin": False,
+        }
+    )
+
+
+def registro_admin(request):
+    """Registro exclusivo del administrador inicial."""
+
+    if hay_administrador():
+        return redirect("login")
+
+    if request.method == "POST":
+        form = RegistroForm(request.POST)
+
+        if form.is_valid():
+            try:
+                usuario = form.guardar(
+                    rol=Usuario.Rol.ADMIN
+                )
+            except IntegrityError:
+                form.add_error(
+                    None,
+                    "No se pudo completar el registro. "
+                    "Verifica que la cuenta no exista."
+                )
+            except DatabaseError:
+                form.add_error(
+                    None,
+                    "Ocurrió un problema al crear el administrador."
+                )
+            else:
+                request.session[SESION_REGISTRO] = {
+                    "nombre": usuario.get_full_name(),
+                    "correo": usuario.email,
+                }
+                return redirect("registro_exitoso")
+    else:
+        form = RegistroForm()
+
+    return render(
+        request,
+        "usuarios/registro.html",
+        {
+            "form": form,
+            "es_registro_admin": True,
+        }
+    )
 
 
 def registro_exitoso(request):

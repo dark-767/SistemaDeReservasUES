@@ -3,10 +3,32 @@
 {% block titulo %}Crear cuenta{% endblock %}
 
 {% block contenido %}
-        <h2 class="auth-card__title">Crear cuenta</h2>
-        <p class="auth-card__subtitle">Esta será la cuenta de administrador del sistema.</p>
+        
+{% if es_registro_admin %}
+    <h2 class="auth-card__title">
+        Crear administrador
+    </h2>
+    <p class="auth-card__subtitle">
+        Configura la cuenta del administrador inicial
+        del sistema de reservas.
+    </p>
+{% else %}
+    <h2 class="auth-card__title">
+        Crear cuenta
+    </h2>
+    <p class="auth-card__subtitle">
+        Regístrate para consultar y solicitar
+        reservas de espacios institucionales.
+    </p>
+{% endif %}
 
-        <form class="stack" action="{% url 'registro' %}" method="post" novalidate>
+
+        
+<form class="stack"
+      action="{% if es_registro_admin %}{% url 'registro_admin' %}{% else %}{% url 'registro' %}{% endif %}"
+      method="post"
+      novalidate>
+
           {% csrf_token %}
 
           {% if form.errors %}
