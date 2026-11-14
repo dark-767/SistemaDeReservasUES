@@ -251,6 +251,10 @@ def confirmacion_reserva(request, pk):
 def cargarVistaCalendario(request): 
     return render(request,"reservas/calendario.html")
 
+@login_required
+def cargarVistaSolicitudes(request): 
+    return render(request,"reservas/mis_solicitudes.html")
+
 @require_POST
 def salir(request):
     logout(request)

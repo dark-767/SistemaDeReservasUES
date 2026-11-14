@@ -7,5 +7,7 @@ urlpatterns = [
     path("solicitar/", views.solicitar_reserva, name="solicitar_reserva"),
     path("solicitar/<int:pk>/confirmacion/", views.confirmacion_reserva, name="confirmacion_reserva"),
     path("salir/", views.salir, name="salir"),
+    
     path("disponibilidad/calandario", views.cargarVistaCalendario, name="calendario"),
+    path("disponibilidad/solicitudes", views.cargarVistaSolicitudes, name="mis_solicitudes"),
 ]
