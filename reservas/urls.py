@@ -8,6 +8,6 @@ urlpatterns = [
     path("solicitar/<int:pk>/confirmacion/", views.confirmacion_reserva, name="confirmacion_reserva"),
     path("salir/", views.salir, name="salir"),
     
-    path("disponibilidad/calandario", views.cargarVistaCalendario, name="calendario"),
+    path("disponibilidad/calandario", views.consultar_calendario, name="calendario"),
     path("disponibilidad/solicitudes", views.consultar_solicitudes, name="mis_solicitudes"),
 ]

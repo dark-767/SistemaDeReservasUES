@@ -335,7 +335,7 @@ def consultar_solicitudes(request):
     )
 
 @login_required
-def cargarVistaCalendario(request):
+def consultar_calendario(request):
     """Consulta y renderiza el calendario real por semana o día desde PostgreSQL."""
     vista = request.GET.get("vista", "semana")
     if vista not in ("semana", "dia"):
