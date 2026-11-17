@@ -52,14 +52,20 @@
       </a>
     </div>
 
-    <nav class="tabs" aria-label="Filtrar reservas">
+    <nav class="tabs" aria-label="Filtrar solicitudes">
       <a href="{% url 'mis_solicitudes' %}?estado=todas" class="{% if filtro == 'todas' %}is-active{% endif %}" {% if filtro == 'todas' %}aria-current="true"{% endif %}>
         Todas <span class="tabs__count">{{ total_todas }}</span>
       </a>
-      <a href="{% url 'mis_solicitudes' %}?estado=proximas" class="{% if filtro == 'proximas' %}is-active{% endif %}" {% if filtro == 'proximas' %}aria-current="true"{% endif %}>
-        Próximas <span class="tabs__count">{{ total_proximas }}</span>
+      <a href="{% url 'mis_solicitudes' %}?estado=pendiente" class="{% if filtro == 'pendiente' %}is-active{% endif %}" {% if filtro == 'pendiente' %}aria-current="true"{% endif %}>
+        Pendientes <span class="tabs__count">{{ total_pendientes }}</span>
       </a>
-      <a href="{% url 'mis_solicitudes' %}?estado=canceladas" class="{% if filtro == 'canceladas' %}is-active{% endif %}" {% if filtro == 'canceladas' %}aria-current="true"{% endif %}>
+      <a href="{% url 'mis_solicitudes' %}?estado=aprobada" class="{% if filtro == 'aprobada' %}is-active{% endif %}" {% if filtro == 'aprobada' %}aria-current="true"{% endif %}>
+        Aprobadas <span class="tabs__count">{{ total_aprobadas }}</span>
+      </a>
+      <a href="{% url 'mis_solicitudes' %}?estado=rechazada" class="{% if filtro == 'rechazada' %}is-active{% endif %}" {% if filtro == 'rechazada' %}aria-current="true"{% endif %}>
+        Rechazadas <span class="tabs__count">{{ total_rechazadas }}</span>
+      </a>
+      <a href="{% url 'mis_solicitudes' %}?estado=cancelada" class="{% if filtro == 'cancelada' %}is-active{% endif %}" {% if filtro == 'cancelada' %}aria-current="true"{% endif %}>
         Canceladas <span class="tabs__count">{{ total_canceladas }}</span>
       </a>
     </nav>
@@ -75,15 +81,17 @@
 
         <div class="booking__body">
           <div class="booking__title">
-            <span class="booking__name">{{ s.espacio_nombre }}</span>
-            {% if s.es_cancelada_admin %}
-              <span class="badge badge--danger">Cancelada por el administrador</span>
-            {% elif s.es_cancelada_usuario %}
-              <span class="badge badge--neutral">Cancelada por ti</span>
-            {% elif s.estado == 'pendiente' %}
+            <span class="booking__name">{{ s.espacio_codigo }} · {{ s.espacio_nombre }}</span>
+            {% if s.es_pendiente %}
               <span class="badge badge--warning">Pendiente</span>
-            {% else %}
+            {% elif s.es_aprobada %}
               <span class="badge badge--success">Aprobada</span>
+            {% elif s.es_rechazada %}
+              <span class="badge badge--danger">Rechazada</span>
+            {% elif s.es_cancelada_admin %}
+              <span class="badge badge--danger">Cancelada por el administrador</span>
+            {% else %}
+              <span class="badge badge--neutral">Cancelada por ti</span>
             {% endif %}
           </div>
 
@@ -100,9 +108,18 @@
               <svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5"/></svg>
               {{ s.motivo_completo }}
             </span>
+            <span>
+              <svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              {{ s.cantidad_personas }} personas
+            </span>
           </div>
 
-          {% if s.es_cancelada_admin and s.motivo_rechazo %}
+          {% if s.es_rechazada %}
+          <div class="note">
+            <svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span><strong>Motivo de rechazo:</strong> {{ s.motivo_rechazo|default:"Sin motivo especificado." }}</span>
+          </div>
+          {% elif s.es_cancelada_admin and s.motivo_rechazo %}
           <div class="note">
             <svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
             <span><strong>Motivo del administrador:</strong> {{ s.motivo_rechazo }}</span>
@@ -112,8 +129,8 @@
 
         <div class="booking__actions">
           {% if s.es_proxima %}
-            <a class="btn btn--secondary btn--sm" href="{% url 'calendario' %}?espacio={{ s.espacio_codigo }}&fecha={{ s.fecha_iso }}">Ver en calendario</a>
-          {% elif s.es_cancelada_admin %}
+            <a class="btn btn--secondary btn--sm" href="{% url 'calendario' %}?espacio={{ s.espacio_id }}&fecha={{ s.fecha_iso }}">Ver en calendario</a>
+          {% elif s.es_rechazada or s.es_cancelada_admin %}
             <a class="btn btn--secondary btn--sm" href="{% url 'buscar_disponibilidad' %}?fecha={{ s.fecha_iso }}">Buscar otro espacio</a>
           {% elif s.ya_paso %}
             <span class="muted">Ya se realizó</span>
@@ -128,12 +145,16 @@
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
       </span>
       <h2>
-        {% if filtro == 'proximas' %}
-          No tienes reservas próximas
-        {% elif filtro == 'canceladas' %}
-          No tienes reservas canceladas
+        {% if filtro == 'pendiente' %}
+          No tienes solicitudes pendientes
+        {% elif filtro == 'aprobada' %}
+          No tienes solicitudes aprobadas
+        {% elif filtro == 'rechazada' %}
+          No tienes solicitudes rechazadas
+        {% elif filtro == 'cancelada' %}
+          No tienes solicitudes canceladas
         {% else %}
-          Aún no tienes reservas
+          Aún no tienes solicitudes
         {% endif %}
       </h2>
       <p>Busca un aula o laboratorio libre y haz tu primera reserva. Aparecerá aquí con su estado.</p>
