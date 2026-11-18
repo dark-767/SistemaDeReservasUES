@@ -10,4 +10,5 @@ urlpatterns = [
     
     path("disponibilidad/calandario", views.consultar_calendario, name="calendario"),
     path("mis-solicitudes/", views.consultar_solicitudes, name="mis_solicitudes"),
+    path("reservas/<int:reserva_id>/cancelar/", views.cancelar_reserva, name="cancelar_reserva"),
 ]

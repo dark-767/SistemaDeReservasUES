@@ -1,10 +1,14 @@
 from datetime import datetime, time, timedelta
+from pyexpat.errors import messages
 
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.db import transaction
 
 from .forms import SolicitudReservaForm
 from .models import BloqueHorario, Espacio, Reserva, TipoEspacio
@@ -251,70 +255,111 @@ def confirmacion_reserva(request, pk):
 
 @login_required
 def consultar_solicitudes(request):
-    """HU05 (SCRUM-43 a SCRUM-46): consulta y muestra el estado de las solicitudes del usuario."""
+    """
+    Consulta las reservas propias del usuario.
+    Filtros: todas, proximas y cancelada.
+    """
+
     ahora = timezone.now()
-    estados_validos = (
+
+    filtros_validos = (
         "todas",
-        Reserva.Estado.PENDIENTE,
-        Reserva.Estado.APROBADA,
-        Reserva.Estado.RECHAZADA,
-        Reserva.Estado.CANCELADA,
+        "proximas",
+        "cancelada"
     )
+
     filtro = request.GET.get("estado", "todas")
-    if filtro not in estados_validos:
+
+    if filtro not in filtros_validos:
         filtro = "todas"
 
     todas = list(
-        Reserva.objects.filter(usuario=request.user)
+        Reserva.objects.filter(
+            usuario=request.user
+        )
         .select_related(
             "espacio",
             "espacio__tipo_espacio",
             "motivo",
             "bloque_horario",
-            "gestionado_por",
+            "gestionado_por"
         )
         .order_by("-inicio")
     )
 
-    conteos = {
-        "todas": len(todas),
-        Reserva.Estado.PENDIENTE: 0,
-        Reserva.Estado.APROBADA: 0,
-        Reserva.Estado.RECHAZADA: 0,
-        Reserva.Estado.CANCELADA: 0,
-    }
-    for r in todas:
-        if r.estado in conteos:
-            conteos[r.estado] += 1
+    proximas = [
+        r for r in todas
+        if r.estado in Reserva.ESTADOS_ACTIVOS
+        and r.inicio > ahora
+    ]
 
-    if filtro == "todas":
-        seleccionadas = todas
+    canceladas = [
+        r for r in todas
+        if r.estado == Reserva.Estado.CANCELADA
+    ]
+
+    if filtro == "proximas":
+        seleccionadas = proximas
+
+    elif filtro == "cancelada":
+        seleccionadas = canceladas
+
     else:
-        seleccionadas = [r for r in todas if r.estado == filtro]
+        seleccionadas = todas
 
     solicitudes = []
+
     for r in seleccionadas:
+
         inicio_local = timezone.localtime(r.inicio)
-        es_pendiente = r.estado == Reserva.Estado.PENDIENTE
-        es_aprobada = r.estado == Reserva.Estado.APROBADA
-        es_rechazada = r.estado == Reserva.Estado.RECHAZADA
+
+        es_pendiente = (
+            r.estado == Reserva.Estado.PENDIENTE
+        )
+
+        es_aprobada = (
+            r.estado == Reserva.Estado.APROBADA
+        )
+
+        es_rechazada = (
+            r.estado == Reserva.Estado.RECHAZADA
+        )
+
         es_cancelada_admin = (
             r.estado == Reserva.Estado.CANCELADA
             and r.gestionado_por_id is not None
             and r.gestionado_por_id != r.usuario_id
         )
-        es_cancelada_usuario = (
-            r.estado == Reserva.Estado.CANCELADA and not es_cancelada_admin
-        )
-        es_proxima = r.estado in Reserva.ESTADOS_ACTIVOS and r.inicio >= ahora
-        ya_paso = r.estado in Reserva.ESTADOS_ACTIVOS and r.inicio < ahora
 
-        motivo_base = r.motivo.nombre if r.motivo_id else "Otro motivo"
+        es_cancelada_usuario = (
+            r.estado == Reserva.Estado.CANCELADA
+            and not es_cancelada_admin
+        )
+
+        es_proxima = (
+            r.estado in Reserva.ESTADOS_ACTIVOS
+            and r.inicio > ahora
+        )
+
+        ya_paso = (
+            r.estado in Reserva.ESTADOS_ACTIVOS
+            and r.inicio <= ahora
+        )
+
+        motivo_base = (
+            r.motivo.nombre
+            if r.motivo_id
+            else "Otro motivo"
+        )
+
         motivo_completo = (
-            f"{motivo_base} · {r.motivo_detalle}" if r.motivo_detalle else motivo_base
+            f"{motivo_base} · {r.motivo_detalle}"
+            if r.motivo_detalle
+            else motivo_base
         )
 
         solicitudes.append({
+            "id": r.pk,
             "pk": r.pk,
             "espacio_id": r.espacio_id,
             "espacio_nombre": r.espacio.nombre,
@@ -322,10 +367,16 @@ def consultar_solicitudes(request):
             "espacio_ubicacion": r.espacio.ubicacion,
             "dia_num": inicio_local.day,
             "mes_corto": MESES[inicio_local.month - 1][:3],
-            "fecha_legible": _fecha_legible(inicio_local.date()),
+            "fecha_legible": _fecha_legible(
+                inicio_local.date()
+            ),
             "fecha_iso": inicio_local.date().isoformat(),
             "horario": _etiqueta_horario(r),
-            "tipo_bloque": "Hora clase" if r.bloque_horario_id else "Horario libre",
+            "tipo_bloque": (
+                "Hora clase"
+                if r.bloque_horario_id
+                else "Horario libre"
+            ),
             "motivo_completo": motivo_completo,
             "cantidad_personas": r.cantidad_personas,
             "estado": r.estado,
@@ -338,7 +389,11 @@ def consultar_solicitudes(request):
             "es_cancelada_usuario": es_cancelada_usuario,
             "es_proxima": es_proxima,
             "ya_paso": ya_paso,
-            "inactiva": es_rechazada or r.estado == Reserva.Estado.CANCELADA or ya_paso,
+            "inactiva": (
+                es_rechazada
+                or r.estado == Reserva.Estado.CANCELADA
+                or ya_paso
+            ),
         })
 
     return render(
@@ -347,14 +402,13 @@ def consultar_solicitudes(request):
         {
             "solicitudes": solicitudes,
             "filtro": filtro,
-            "total_todas": conteos["todas"],
-            "total_pendientes": conteos[Reserva.Estado.PENDIENTE],
-            "total_aprobadas": conteos[Reserva.Estado.APROBADA],
-            "total_rechazadas": conteos[Reserva.Estado.RECHAZADA],
-            "total_canceladas": conteos[Reserva.Estado.CANCELADA],
+            "total_todas": len(todas),
+            "total_proximas": len(proximas),
+            "total_canceladas": len(canceladas),
             **_barra(request.user),
-        },
+        }
     )
+
 
 @login_required
 def consultar_calendario(request):
@@ -540,3 +594,43 @@ def consultar_calendario(request):
 def salir(request):
     logout(request)
     return redirect("login")
+
+
+@login_required
+@require_POST
+def cancelar_reserva(request, reserva_id):
+    """
+    HU07: Cancelar una reserva propia.
+    """
+
+    with transaction.atomic():
+
+        reserva = get_object_or_404(
+            Reserva.objects.select_for_update(),
+            pk=reserva_id,
+            usuario=request.user
+        )
+
+        if reserva.inicio <= timezone.now():
+            messages.error(
+                request,
+                "No puedes cancelar una reserva que ya comenzó."
+            )
+            return redirect("mis_solicitudes")
+
+        try:
+            reserva.cancelar(request.user)
+
+        except ValidationError as error:
+            messages.error(
+                request,
+                "; ".join(error.messages)
+            )
+
+        else:
+            messages.success(
+                request,
+                "La reserva se canceló correctamente."
+            )
+
+    return redirect("mis_solicitudes")

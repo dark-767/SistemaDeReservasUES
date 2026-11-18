@@ -31,7 +31,7 @@ def login(request):
     if not hay_administrador():
         return redirect("inicio")
 
-    if request.user.is_authenticated:
+    if request.user.is_authenticated: 
         return redirect("inicio")
 
     if request.method == "POST":
