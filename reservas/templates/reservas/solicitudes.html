@@ -1,0 +1,86 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solicitudes · ReservaEspacios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+</head>
+<body>
+  {% include "reservas/includes/topbar.html" %}
+
+  <main class="page">
+    <div>
+      <h1 class="page-title">Solicitudes de reserva</h1>
+      <p class="page-subtitle">Revisa las solicitudes pendientes y recházalas cuando el espacio deba usarse de otra forma.</p>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert--success" role="status">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if solicitudes %}
+    <section class="card table-card" aria-label="Lista de solicitudes pendientes">
+      <div class="table-scroll">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Usuario</th>
+              <th scope="col">Espacio</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Horario</th>
+              <th scope="col">Motivo</th>
+              <th scope="col">Estado</th>
+              <th scope="col" class="actions"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for reserva in solicitudes %}
+            <tr>
+              <td>
+                <div class="person">
+                  <span class="avatar" aria-hidden="true">{{ reserva.iniciales_usuario }}</span>
+                  <div>
+                    <div class="person__name">{{ reserva.nombre_solicitante }}</div>
+                    <div class="muted">{{ reserva.usuario.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ reserva.espacio.nombre }}</td>
+              <td class="num">{{ reserva.fecha_legible }}</td>
+              <td class="num">{{ reserva.horario_legible }}</td>
+              <td>{{ reserva.motivo_texto }}</td>
+              <td><span class="badge {{ reserva.clase_estado }}">{{ reserva.get_estado_display }}</span></td>
+              <td class="actions">
+                <a class="btn btn--ghost btn--sm btn--danger-ghost" href="{% url 'rechazar_solicitud' reserva.pk %}">Rechazar</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <span>{% if solicitudes|length == 1 %}1 solicitud pendiente{% else %}{{ solicitudes|length }} solicitudes pendientes{% endif %}</span>
+      </div>
+    </section>
+    {% else %}
+    <section class="card empty">
+      <span class="empty__icon">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </span>
+      <h2>No hay solicitudes pendientes</h2>
+      <p>Cuando un usuario reserve un espacio, la solicitud aparecerá aquí para que puedas rechazarla si es necesario.</p>
+    </section>
+    {% endif %}
+  </main>
+</body>
+</html>

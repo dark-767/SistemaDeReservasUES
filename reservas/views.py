@@ -1,12 +1,16 @@
 from datetime import datetime, time, timedelta
+from functools import wraps
 
+from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from .forms import SolicitudReservaForm
+from .forms import RechazoReservaForm, SolicitudReservaForm
 from .models import BloqueHorario, Espacio, Reserva, TipoEspacio
 
 DIAS = ("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
@@ -55,11 +59,32 @@ def _parse_capacidad(valor):
     return numero, None
 
 
-def _barra(usuario):
+CLASES_ESTADO = {
+    Reserva.Estado.PENDIENTE: "badge--warning",
+    Reserva.Estado.APROBADA: "badge--success",
+    Reserva.Estado.RECHAZADA: "badge--danger",
+    Reserva.Estado.CANCELADA: "badge--neutral",
+}
+
+
+def solo_admin(view):
+    @login_required
+    @wraps(view)
+    def interior(request, *args, **kwargs):
+        if not getattr(request.user, "es_admin", False):
+            return HttpResponseForbidden("Solo un administrador puede gestionar solicitudes.")
+        return view(request, *args, **kwargs)
+
+    return interior
+
+
+def _barra(usuario, nav_activa=""):
     return {
         "iniciales": _iniciales(usuario),
         "nombre_usuario": usuario.get_full_name() or usuario.username,
         "rol_usuario": usuario.get_rol_display(),
+        "es_admin": getattr(usuario, "es_admin", False),
+        "nav_activa": nav_activa,
     }
 
 
@@ -78,6 +103,21 @@ def _clase_media(tipo):
     if "audito" in nombre or "sala" in nombre:
         return "space-card__media space-card__media--hall"
     return "space-card__media"
+
+
+def _presentar(reserva):
+    inicio = timezone.localtime(reserva.inicio)
+    reserva.fecha_legible = _fecha_legible(inicio.date())
+    reserva.fecha_valor = inicio.date().isoformat()
+    reserva.horario_legible = _etiqueta_horario(reserva)
+    reserva.dia = inicio.day
+    reserva.mes_corto = MESES[inicio.month - 1][:3]
+    reserva.iniciales_usuario = _iniciales(reserva.usuario)
+    reserva.nombre_solicitante = reserva.usuario.get_full_name() or reserva.usuario.username
+    reserva.clase_estado = CLASES_ESTADO.get(reserva.estado, "badge--neutral")
+    reserva.motivo_texto = reserva.motivo.nombre if reserva.motivo_id else reserva.motivo_detalle
+    reserva.inactiva = reserva.estado not in Reserva.ESTADOS_ACTIVOS
+    return reserva
 
 
 def _etiqueta_horario(reserva):
@@ -184,7 +224,7 @@ def buscar_disponibilidad(request):
             "espacios": espacios,
             "resumen": resumen,
             "consulto": consulto,
-            **_barra(request.user),
+            **_barra(request.user, "buscar"),
         },
     )
 
@@ -232,19 +272,103 @@ def solicitar_reserva(request):
 
 @login_required
 def confirmacion_reserva(request, pk):
-    reserva = get_object_or_404(Reserva, pk=pk, usuario=request.user)
-    inicio = timezone.localtime(reserva.inicio)
-    fin = timezone.localtime(reserva.fin)
+    reserva = get_object_or_404(
+        Reserva.objects.select_related("espacio", "motivo", "bloque_horario", "usuario"),
+        pk=pk,
+        usuario=request.user,
+    )
+    _presentar(reserva)
+    titulos = {
+        Reserva.Estado.APROBADA: (
+            "Reserva registrada",
+            "La solicitud cumplió la capacidad y no tiene conflicto de horario.",
+        ),
+        Reserva.Estado.PENDIENTE: ("Solicitud pendiente", "Tu solicitud está en revisión."),
+        Reserva.Estado.RECHAZADA: (
+            "Solicitud rechazada",
+            "El administrador rechazó esta reserva. El horario quedó libre.",
+        ),
+        Reserva.Estado.CANCELADA: ("Reserva cancelada", "Esta reserva ya no está vigente."),
+    }
+    titulo, subtitulo = titulos.get(reserva.estado, ("Solicitud", ""))
     return render(
         request,
         "reservas/confirmacion_reserva.html",
         {
             "reserva": reserva,
-            "fecha_legible": _fecha_legible(inicio.date()),
-            "fecha_valor": inicio.date().isoformat(),
-            "horario_legible": f"{inicio:%H:%M} - {fin:%H:%M}",
-            **_barra(request.user),
+            "titulo": titulo,
+            "subtitulo": subtitulo,
+            **_barra(request.user, "mis_solicitudes"),
         },
+    )
+
+
+@solo_admin
+def listar_solicitudes(request):
+    """HU04: el administrador ve las solicitudes que todavía puede rechazar."""
+    solicitudes = [
+        _presentar(reserva)
+        for reserva in (
+            Reserva.objects.filter(estado__in=Reserva.ESTADOS_ACTIVOS)
+            .select_related("usuario", "espacio", "motivo", "bloque_horario")
+            .order_by("inicio")
+        )
+    ]
+    return render(
+        request,
+        "reservas/solicitudes.html",
+        {"solicitudes": solicitudes, **_barra(request.user, "solicitudes")},
+    )
+
+
+@solo_admin
+def rechazar_solicitud(request, pk):
+    """HU04: selecciona una solicitud activa y la rechaza con motivo."""
+    reserva = get_object_or_404(
+        Reserva.objects.select_related("usuario", "espacio", "motivo", "bloque_horario"),
+        pk=pk,
+        estado__in=Reserva.ESTADOS_ACTIVOS,
+    )
+    _presentar(reserva)
+    if request.method == "POST":
+        form = RechazoReservaForm(request.POST)
+        if form.is_valid():
+            try:
+                reserva.rechazar(request.user, form.cleaned_data["motivo"])
+            except ValidationError as exc:
+                form.add_error("motivo", exc.messages[0] if getattr(exc, "messages", None) else exc)
+            except PermissionError:
+                return HttpResponseForbidden("Solo un administrador puede rechazar reservas.")
+            else:
+                messages.success(
+                    request,
+                    "Solicitud rechazada. El usuario verá el motivo en Mis solicitudes.",
+                )
+                return redirect("solicitudes")
+    else:
+        form = RechazoReservaForm()
+    return render(
+        request,
+        "reservas/rechazar_solicitud.html",
+        {"form": form, "reserva": reserva, **_barra(request.user, "solicitudes")},
+    )
+
+
+@login_required
+def mis_solicitudes(request):
+    """El usuario consulta el resultado de sus solicitudes, incluido el motivo de rechazo."""
+    reservas = [
+        _presentar(reserva)
+        for reserva in (
+            Reserva.objects.filter(usuario=request.user)
+            .select_related("espacio", "motivo", "bloque_horario")
+            .order_by("-inicio")
+        )
+    ]
+    return render(
+        request,
+        "reservas/mis_solicitudes.html",
+        {"reservas": reservas, **_barra(request.user, "mis_solicitudes")},
     )
 
 

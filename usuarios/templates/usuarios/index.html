@@ -55,6 +55,18 @@
                 <span class="index-item__title">Buscar disponibilidad</span>
                 <span class="index-item__text">Espacios libres por fecha y horario.</span>
             </a>
+            <a class="card index-item" href="{% url 'mis_solicitudes' %}">
+                <span class="index-item__num">06 · Usuario</span>
+                <span class="index-item__title">Mis solicitudes</span>
+                <span class="index-item__text">Consulta el estado de tus reservas y el motivo si fueron rechazadas.</span>
+            </a>
+            {% if es_admin %}
+            <a class="card index-item" href="{% url 'solicitudes' %}">
+                <span class="index-item__num">07 · Administrador</span>
+                <span class="index-item__title">Solicitudes</span>
+                <span class="index-item__text">Revisa solicitudes pendientes y recházalas indicando el motivo.</span>
+            </a>
+            {% endif %}
         </div>
     </main>
 </body>

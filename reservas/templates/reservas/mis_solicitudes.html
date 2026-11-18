@@ -1,0 +1,71 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mis solicitudes · ReservaEspacios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+</head>
+<body>
+  {% include "reservas/includes/topbar.html" %}
+
+  <main class="page">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Mis solicitudes</h1>
+        <p class="page-subtitle">Consulta el resultado de tus reservas. Si una fue rechazada, verás el motivo.</p>
+      </div>
+      <a class="btn btn--primary" href="{% url 'buscar_disponibilidad' %}">Nueva reserva</a>
+    </div>
+
+    {% if reservas %}
+    <section class="booking-list" aria-label="Lista de solicitudes">
+      {% for reserva in reservas %}
+      <article class="card booking{% if reserva.inactiva %} booking--off{% endif %}">
+        <div class="booking__date" aria-hidden="true">
+          <span class="booking__day">{{ reserva.dia }}</span>
+          <span class="booking__month">{{ reserva.mes_corto }}</span>
+        </div>
+        <div class="booking__body">
+          <div class="booking__title">
+            <span class="booking__name">{{ reserva.espacio.nombre }}</span>
+            <span class="badge {{ reserva.clase_estado }}">{{ reserva.get_estado_display }}</span>
+          </div>
+          <div class="meta">
+            <span>{{ reserva.fecha_legible }}</span>
+            <span>{{ reserva.horario_legible }}</span>
+            <span>{{ reserva.motivo_texto }}</span>
+          </div>
+          {% if reserva.estado == "rechazada" and reserva.motivo_rechazo %}
+          <div class="note">
+            <svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span><strong>Motivo del rechazo:</strong> {{ reserva.motivo_rechazo }}</span>
+          </div>
+          {% endif %}
+        </div>
+        <div class="booking__actions">
+          <a class="btn btn--secondary btn--sm" href="{% url 'confirmacion_reserva' reserva.pk %}">Ver detalle</a>
+          {% if reserva.estado == "rechazada" %}
+          <a class="btn btn--secondary btn--sm" href="{% url 'buscar_disponibilidad' %}?fecha={{ reserva.fecha_valor }}{% if reserva.bloque_horario_id %}&horario={{ reserva.bloque_horario_id }}{% endif %}">Buscar otro espacio</a>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </section>
+    {% else %}
+    <section class="card empty">
+      <span class="empty__icon">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </span>
+      <h2>Aún no tienes reservas</h2>
+      <p>Busca un aula o laboratorio libre y haz tu primera reserva. El resultado aparecerá aquí.</p>
+      <a class="btn btn--primary" href="{% url 'buscar_disponibilidad' %}">Buscar espacios</a>
+    </section>
+    {% endif %}
+  </main>
+</body>
+</html>
