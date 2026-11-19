@@ -660,12 +660,18 @@ def consultar_calendario(request):
                 "celdas": [_construir_celda(espacio_actual, d, b) for d in dias_semana],
             })
 
+    espacios_dia = espacios
+    if vista == "dia" and espacio_id.isdigit():
+        espacio_seleccionado = next((e for e in espacios if str(e.pk) == espacio_id), None)
+        if espacio_seleccionado:
+            espacios_dia = [espacio_seleccionado]
+
     # Filas para vista Día (todos los espacios filtrados en fecha_base)
     filas_dia = []
     for b in bloques:
         filas_dia.append({
             "horario": f"{b.hora_inicio:%H:%M} – {b.hora_fin:%H:%M}",
-            "celdas": [_construir_celda(e, fecha_base, b) for e in espacios],
+            "celdas": [_construir_celda(e, fecha_base, b) for e in espacios_dia],
         })
 
     # Primer evento ocupado para inicializar el panel lateral derecho
@@ -703,6 +709,8 @@ def consultar_calendario(request):
             "tipos": tipos,
             "tipo_id": tipo_id,
             "espacios": espacios,
+            "espacios_dia": espacios_dia,
+            "espacio_id": espacio_id,
             "espacio_actual": espacio_actual,
             "encabezados_semana": encabezados_semana,
             "filas_semana": filas_semana,

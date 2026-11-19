@@ -61,7 +61,6 @@
       <section class="card cal-card" aria-label="Calendario">
         <!-- Filtros -->
         <form class="cal-toolbar" action="{% url 'calendario' %}" method="get" id="form-filtros-cal">
-          <input type="hidden" name="fecha" value="{{ fecha_valor }}">
           <div class="cal-filters">
             <div class="field" style="width: auto;">
               <span class="field__label" id="vista-label">Vista</span>
@@ -77,18 +76,28 @@
               </div>
             </div>
 
-            {% if vista == 'semana' %}
+            <div class="field">
+              <label class="field__label" for="fecha">Fecha</label>
+              <input class="input" type="date" id="fecha" name="fecha" value="{{ fecha_valor }}" onchange="this.form.submit()">
+            </div>
+
             <div class="field">
               <label class="field__label" for="espacio">Espacio</label>
               <select class="select" id="espacio" name="espacio" onchange="this.form.submit()">
+                {% if vista == 'dia' %}
+                  <option value="" {% if not espacio_id %}selected{% endif %}>Todos los espacios</option>
+                {% endif %}
                 {% for e in espacios %}
-                  <option value="{{ e.pk }}" {% if espacio_actual and e.pk == espacio_actual.pk %}selected{% endif %}>{{ e.nombre }}</option>
+                  {% if vista == 'dia' %}
+                    <option value="{{ e.pk }}" {% if espacio_id == e.pk|stringformat:"s" %}selected{% endif %}>{{ e.nombre }}</option>
+                  {% else %}
+                    <option value="{{ e.pk }}" {% if espacio_actual and e.pk == espacio_actual.pk %}selected{% endif %}>{{ e.nombre }}</option>
+                  {% endif %}
                 {% empty %}
                   <option value="">Sin espacios</option>
                 {% endfor %}
               </select>
             </div>
-            {% endif %}
 
             <div class="field">
               <label class="field__label" for="tipo">Tipo de espacio</label>
@@ -102,16 +111,16 @@
           </div>
 
           <div class="week-nav">
-            <a class="btn btn--secondary btn--icon" href="{% url 'calendario' %}?vista={{ vista }}&fecha={{ fecha_anterior }}{% if espacio_actual %}&espacio={{ espacio_actual.pk }}{% endif %}{% if tipo_id %}&tipo={{ tipo_id }}{% endif %}" aria-label="Anterior">
+            <a class="btn btn--secondary btn--icon" href="{% url 'calendario' %}?vista={{ vista }}&fecha={{ fecha_anterior }}{% if vista == 'semana' and espacio_actual %}&espacio={{ espacio_actual.pk }}{% elif vista == 'dia' and espacio_id %}&espacio={{ espacio_id }}{% endif %}{% if tipo_id %}&tipo={{ tipo_id }}{% endif %}" aria-label="Anterior">
               <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
             </a>
             <span class="week-nav__label">
               {% if vista == 'semana' %}{{ rango_semana_label }}{% else %}{{ dia_label }}{% endif %}
             </span>
-            <a class="btn btn--secondary btn--icon" href="{% url 'calendario' %}?vista={{ vista }}&fecha={{ fecha_siguiente }}{% if espacio_actual %}&espacio={{ espacio_actual.pk }}{% endif %}{% if tipo_id %}&tipo={{ tipo_id }}{% endif %}" aria-label="Siguiente">
+            <a class="btn btn--secondary btn--icon" href="{% url 'calendario' %}?vista={{ vista }}&fecha={{ fecha_siguiente }}{% if vista == 'semana' and espacio_actual %}&espacio={{ espacio_actual.pk }}{% elif vista == 'dia' and espacio_id %}&espacio={{ espacio_id }}{% endif %}{% if tipo_id %}&tipo={{ tipo_id }}{% endif %}" aria-label="Siguiente">
               <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </a>
-            <a class="btn btn--secondary btn--sm" href="{% url 'calendario' %}?vista={{ vista }}{% if espacio_actual %}&espacio={{ espacio_actual.pk }}{% endif %}{% if tipo_id %}&tipo={{ tipo_id }}{% endif %}">Hoy</a>
+            <a class="btn btn--secondary btn--sm" href="{% url 'calendario' %}?vista={{ vista }}{% if vista == 'semana' and espacio_actual %}&espacio={{ espacio_actual.pk }}{% elif vista == 'dia' and espacio_id %}&espacio={{ espacio_id }}{% endif %}{% if tipo_id %}&tipo={{ tipo_id }}{% endif %}">Hoy</a>
           </div>
         </form>
 
@@ -153,9 +162,9 @@
         {% else %}
         <!-- Vista día: todos los espacios en columnas -->
         <div class="table-scroll">
-          <div class="calendar calendar--day" style="grid-template-columns: 112px repeat({{ espacios|length|default:1 }}, minmax(150px, 1fr));" role="grid" aria-label="Calendario diario">
+          <div class="calendar calendar--day" style="grid-template-columns: 112px repeat({{ espacios_dia|length|default:1 }}, minmax(150px, 1fr));" role="grid" aria-label="Calendario diario">
             <div class="calendar__corner">Bloque</div>
-            {% for e in espacios %}
+            {% for e in espacios_dia %}
               <div class="calendar__head">{{ e.tipo_espacio.nombre }}<strong>{{ e.codigo }}</strong></div>
             {% endfor %}
 
