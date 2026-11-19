@@ -509,6 +509,7 @@ def consultar_solicitudes(request):
             "total_proximas": len(proximas),
             "total_canceladas": len(canceladas),
             **_barra(request.user),
+            "nav_activa": "mis_solicitudes",
         }
     )
 
