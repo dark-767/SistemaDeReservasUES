@@ -132,6 +132,7 @@
                     <button
                       class="event event--{{ c.tipo }} {% if primer_evento == c %}is-selected{% endif %}"
                       type="button"
+                      title="Ocupado · {{ c.espacio }} ({{ c.horario }})"
                       data-tipo="{{ c.tipo }}"
                       data-espacio="{{ c.espacio }}"
                       data-fecha="{{ c.fecha }}"
@@ -142,7 +143,7 @@
                       <strong>{{ c.titulo }}</strong>{{ c.subtitulo }}
                     </button>
                   {% else %}
-                    <a class="free" href="{% url 'solicitar_reserva' %}?espacio={{ c.espacio_id }}&fecha={{ c.fecha_iso }}&horario={{ c.bloque_id }}">Disponible</a>
+                    <a class="free" href="{% url 'solicitar_reserva' %}?espacio={{ c.espacio_id }}&fecha={{ c.fecha_iso }}&horario={{ c.bloque_id }}" title="Disponible · Clic para reservar">Disponible</a>
                   {% endif %}
                 </div>
               {% endfor %}
@@ -166,6 +167,7 @@
                     <button
                       class="event event--{{ c.tipo }} {% if primer_evento == c %}is-selected{% endif %}"
                       type="button"
+                      title="Ocupado · {{ c.espacio }} ({{ c.horario }})"
                       data-tipo="{{ c.tipo }}"
                       data-espacio="{{ c.espacio }}"
                       data-fecha="{{ c.fecha }}"
@@ -176,7 +178,7 @@
                       <strong>{{ c.titulo }}</strong>{{ c.subtitulo }}
                     </button>
                   {% else %}
-                    <a class="free" href="{% url 'solicitar_reserva' %}?espacio={{ c.espacio_id }}&fecha={{ c.fecha_iso }}&horario={{ c.bloque_id }}">Disponible</a>
+                    <a class="free" href="{% url 'solicitar_reserva' %}?espacio={{ c.espacio_id }}&fecha={{ c.fecha_iso }}&horario={{ c.bloque_id }}" title="Disponible · Clic para reservar">Disponible</a>
                   {% endif %}
                 </div>
               {% endfor %}
@@ -190,6 +192,8 @@
           <span><i class="l-busy"></i>Ocupado</span>
           <span><i class="l-exam"></i>Examen (horario libre)</span>
           <span><i class="l-free"></i>Disponible</span>
+          <span class="badge badge--neutral">Ocupados: {{ total_ocupados }}</span>
+          <span class="badge badge--success">Disponibles: {{ total_disponibles }}</span>
         </div>
       </section>
 

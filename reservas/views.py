@@ -678,6 +678,8 @@ def consultar_calendario(request):
                 break
         if primer_evento:
             break
+    total_ocupados = sum(1 for fila in filas_activas for c in fila["celdas"] if c["ocupado"])
+    total_disponibles = sum(1 for fila in filas_activas for c in fila["celdas"] if not c["ocupado"])
 
     encabezados_semana = [
         {
@@ -706,6 +708,8 @@ def consultar_calendario(request):
             "filas_semana": filas_semana,
             "filas_dia": filas_dia,
             "primer_evento": primer_evento,
+            "total_ocupados": total_ocupados,
+            "total_disponibles": total_disponibles,
             "viene_de_busqueda": bool(request.GET.get("espacio")),
             **_barra(request.user),
         },
