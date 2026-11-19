@@ -73,20 +73,23 @@ class RegistroForm(forms.Form):
                 self.add_error("contrasena", error)
         return datos
 
-    def guardar(self):
-        """Crea el administrador en la base de datos (contraseña con hash)."""
+    
+    def guardar(self, rol=Usuario.Rol.USUARIO):
+        """Crea una cuenta con el rol asignado por la vista."""
         nombre = self.cleaned_data["nombre"]
         nombres, _, apellidos = nombre.partition(" ")
         correo = self.cleaned_data["correo"]
+
         with transaction.atomic():
             return Usuario.objects.create_user(
-                username=correo,  # se inicia sesión con el correo
+                username=correo,
                 email=correo,
                 password=self.cleaned_data["contrasena"],
                 first_name=nombres,
                 last_name=apellidos,
-                rol=Usuario.Rol.ADMIN,
+                rol=rol,
             )
+
 
 
 class LoginForm(forms.Form):

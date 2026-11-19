@@ -9,6 +9,9 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.db import transaction
 
 from .forms import RechazoReservaForm, SolicitudReservaForm
 from .models import BloqueHorario, Espacio, Reserva, TipoEspacio
@@ -351,6 +354,161 @@ def rechazar_solicitud(request, pk):
         request,
         "reservas/rechazar_solicitud.html",
         {"form": form, "reserva": reserva, **_barra(request.user, "solicitudes")},
+
+@login_required
+def consultar_solicitudes(request):
+    """
+    Consulta las reservas propias del usuario.
+    Filtros: todas, proximas y cancelada.
+    """
+
+    ahora = timezone.now()
+
+    filtros_validos = (
+        "todas",
+        "proximas",
+        "cancelada"
+    )
+
+    filtro = request.GET.get("estado", "todas")
+
+    if filtro not in filtros_validos:
+        filtro = "todas"
+
+    todas = list(
+        Reserva.objects.filter(
+            usuario=request.user
+        )
+        .select_related(
+            "espacio",
+            "espacio__tipo_espacio",
+            "motivo",
+            "bloque_horario",
+            "gestionado_por"
+        )
+        .order_by("-inicio")
+    )
+
+    proximas = [
+        r for r in todas
+        if r.estado in Reserva.ESTADOS_ACTIVOS
+        and r.inicio > ahora
+    ]
+
+    canceladas = [
+        r for r in todas
+        if r.estado == Reserva.Estado.CANCELADA
+    ]
+
+    if filtro == "proximas":
+        seleccionadas = proximas
+
+    elif filtro == "cancelada":
+        seleccionadas = canceladas
+
+    else:
+        seleccionadas = todas
+
+    solicitudes = []
+
+    for r in seleccionadas:
+
+        inicio_local = timezone.localtime(r.inicio)
+
+        es_pendiente = (
+            r.estado == Reserva.Estado.PENDIENTE
+        )
+
+        es_aprobada = (
+            r.estado == Reserva.Estado.APROBADA
+        )
+
+        es_rechazada = (
+            r.estado == Reserva.Estado.RECHAZADA
+        )
+
+        es_cancelada_admin = (
+            r.estado == Reserva.Estado.CANCELADA
+            and r.gestionado_por_id is not None
+            and r.gestionado_por_id != r.usuario_id
+        )
+
+        es_cancelada_usuario = (
+            r.estado == Reserva.Estado.CANCELADA
+            and not es_cancelada_admin
+        )
+
+        es_proxima = (
+            r.estado in Reserva.ESTADOS_ACTIVOS
+            and r.inicio > ahora
+        )
+
+        ya_paso = (
+            r.estado in Reserva.ESTADOS_ACTIVOS
+            and r.inicio <= ahora
+        )
+
+        motivo_base = (
+            r.motivo.nombre
+            if r.motivo_id
+            else "Otro motivo"
+        )
+
+        motivo_completo = (
+            f"{motivo_base} · {r.motivo_detalle}"
+            if r.motivo_detalle
+            else motivo_base
+        )
+
+        solicitudes.append({
+            "id": r.pk,
+            "pk": r.pk,
+            "espacio_id": r.espacio_id,
+            "espacio_nombre": r.espacio.nombre,
+            "espacio_codigo": r.espacio.codigo,
+            "espacio_ubicacion": r.espacio.ubicacion,
+            "dia_num": inicio_local.day,
+            "mes_corto": MESES[inicio_local.month - 1][:3],
+            "fecha_legible": _fecha_legible(
+                inicio_local.date()
+            ),
+            "fecha_iso": inicio_local.date().isoformat(),
+            "horario": _etiqueta_horario(r),
+            "tipo_bloque": (
+                "Hora clase"
+                if r.bloque_horario_id
+                else "Horario libre"
+            ),
+            "motivo_completo": motivo_completo,
+            "cantidad_personas": r.cantidad_personas,
+            "estado": r.estado,
+            "estado_display": r.get_estado_display(),
+            "motivo_rechazo": r.motivo_rechazo,
+            "es_pendiente": es_pendiente,
+            "es_aprobada": es_aprobada,
+            "es_rechazada": es_rechazada,
+            "es_cancelada_admin": es_cancelada_admin,
+            "es_cancelada_usuario": es_cancelada_usuario,
+            "es_proxima": es_proxima,
+            "ya_paso": ya_paso,
+            "inactiva": (
+                es_rechazada
+                or r.estado == Reserva.Estado.CANCELADA
+                or ya_paso
+            ),
+        })
+
+    return render(
+        request,
+        "reservas/mis_solicitudes.html",
+        {
+            "solicitudes": solicitudes,
+            "filtro": filtro,
+            "total_todas": len(todas),
+            "total_proximas": len(proximas),
+            "total_canceladas": len(canceladas),
+            **_barra(request.user),
+        }
     )
 
 
@@ -369,6 +527,182 @@ def mis_solicitudes(request):
         request,
         "reservas/mis_solicitudes.html",
         {"reservas": reservas, **_barra(request.user, "mis_solicitudes")},
+def consultar_calendario(request):
+    """Consulta y renderiza el calendario real por semana o día desde PostgreSQL."""
+    vista = request.GET.get("vista", "semana")
+    if vista not in ("semana", "dia"):
+        vista = "semana"
+
+    fecha_base, error_fecha = _parse_fecha(request.GET.get("fecha"))
+    if error_fecha or not fecha_base:
+        fecha_base = timezone.localdate()
+
+    # Lunes de la semana seleccionada (lunes=0 ... domingo=6)
+    lunes = fecha_base - timedelta(days=fecha_base.weekday())
+    dias_semana = [lunes + timedelta(days=i) for i in range(6)]  # Lunes a Sábado
+    hoy = timezone.localdate()
+
+    # Navegación anterior / siguiente
+    salto = timedelta(days=7) if vista == "semana" else timedelta(days=1)
+    fecha_anterior = (fecha_base - salto).isoformat()
+    fecha_siguiente = (fecha_base + salto).isoformat()
+
+    sabado = dias_semana[-1]
+    if lunes.month == sabado.month:
+        rango_semana_label = f"{lunes.day} – {sabado.day} de {MESES[lunes.month - 1]}"
+    else:
+        rango_semana_label = (
+            f"{lunes.day} de {MESES[lunes.month - 1][:3]} – "
+            f"{sabado.day} de {MESES[sabado.month - 1][:3]}"
+        )
+    dia_label = _fecha_legible(fecha_base)
+
+    tipos = list(TipoEspacio.objects.filter(espacios__activo=True).distinct().order_by("nombre"))
+    tipo_id = request.GET.get("tipo") or ""
+    espacios_qs = Espacio.objects.filter(activo=True).select_related("tipo_espacio").order_by("codigo")
+    if tipo_id.isdigit():
+        espacios_qs = espacios_qs.filter(tipo_espacio_id=int(tipo_id))
+    espacios = list(espacios_qs)
+
+    espacio_id = request.GET.get("espacio") or ""
+    espacio_actual = None
+    if espacios:
+        if espacio_id.isdigit():
+            espacio_actual = next((e for e in espacios if str(e.pk) == espacio_id), None)
+        if espacio_actual is None:
+            espacio_actual = espacios[0]
+
+    bloques = list(BloqueHorario.objects.filter(activo=True).order_by("hora_inicio"))
+
+    # Rango de consulta en BD según vista
+    if vista == "semana":
+        inicio_rango = _combinar(lunes, time.min)
+        fin_rango = _combinar(sabado + timedelta(days=1), time.min)
+        reservas_qs = Reserva.objects.filter(
+            estado=Reserva.Estado.APROBADA,
+            inicio__lt=fin_rango,
+            fin__gt=inicio_rango,
+        )
+        if espacio_actual:
+            reservas_qs = reservas_qs.filter(espacio=espacio_actual)
+        else:
+            reservas_qs = reservas_qs.none()
+    else:
+        inicio_rango = _combinar(fecha_base, time.min)
+        fin_rango = _combinar(fecha_base + timedelta(days=1), time.min)
+        reservas_qs = Reserva.objects.filter(
+            estado=Reserva.Estado.APROBADA,
+            espacio__in=espacios,
+            inicio__lt=fin_rango,
+            fin__gt=inicio_rango,
+        )
+
+    reservas = list(reservas_qs.select_related("espacio", "motivo", "bloque_horario"))
+
+    def _construir_celda(espacio_obj, fecha_dia, bloque_obj):
+        b_ini = _combinar(fecha_dia, bloque_obj.hora_inicio)
+        b_fin = _combinar(fecha_dia, bloque_obj.hora_fin)
+        match = next(
+            (
+                r for r in reservas
+                if r.espacio_id == espacio_obj.pk and r.inicio < b_fin and r.fin > b_ini
+            ),
+            None,
+        )
+        if match:
+            es_mia = match.usuario_id == request.user.pk
+            es_examen = bool(match.motivo_id and match.motivo.permite_horario_libre)
+            if es_mia:
+                tipo_evento = "mine"
+                titulo_celda = "Tu reserva"
+            elif es_examen:
+                tipo_evento = "exam"
+                titulo_celda = match.motivo.nombre
+            else:
+                tipo_evento = "busy"
+                titulo_celda = "Reservado"
+
+            subtitulo = (
+                _etiqueta_horario(match)
+                if es_examen and not match.bloque_horario_id
+                else (match.motivo.nombre if match.motivo_id else "Reserva")
+            )
+            return {
+                "ocupado": True,
+                "tipo": tipo_evento,
+                "titulo": titulo_celda,
+                "subtitulo": subtitulo,
+                "espacio": espacio_obj.nombre,
+                "fecha": _fecha_legible(fecha_dia),
+                "fecha_iso": fecha_dia.isoformat(),
+                "horario": _etiqueta_horario(match),
+                "motivo": match.motivo.nombre if match.motivo_id else (match.motivo_detalle or "Reserva"),
+            }
+        return {
+            "ocupado": False,
+            "espacio_id": espacio_obj.pk,
+            "fecha_iso": fecha_dia.isoformat(),
+            "bloque_id": bloque_obj.pk,
+        }
+
+    # Filas para vista Semana (un espacio x 6 días)
+    filas_semana = []
+    if espacio_actual:
+        for b in bloques:
+            filas_semana.append({
+                "horario": f"{b.hora_inicio:%H:%M} – {b.hora_fin:%H:%M}",
+                "celdas": [_construir_celda(espacio_actual, d, b) for d in dias_semana],
+            })
+
+    # Filas para vista Día (todos los espacios filtrados en fecha_base)
+    filas_dia = []
+    for b in bloques:
+        filas_dia.append({
+            "horario": f"{b.hora_inicio:%H:%M} – {b.hora_fin:%H:%M}",
+            "celdas": [_construir_celda(e, fecha_base, b) for e in espacios],
+        })
+
+    # Primer evento ocupado para inicializar el panel lateral derecho
+    primer_evento = None
+    filas_activas = filas_semana if vista == "semana" else filas_dia
+    for fila in filas_activas:
+        for c in fila["celdas"]:
+            if c["ocupado"]:
+                primer_evento = c
+                break
+        if primer_evento:
+            break
+
+    encabezados_semana = [
+        {
+            "dia_corto": DIAS[d.weekday()][:3].capitalize(),
+            "numero": d.day,
+            "es_hoy": d == hoy,
+        }
+        for d in dias_semana
+    ]
+
+    return render(
+        request,
+        "reservas/calendario.html",
+        {
+            "vista": vista,
+            "fecha_valor": fecha_base.isoformat(),
+            "fecha_anterior": fecha_anterior,
+            "fecha_siguiente": fecha_siguiente,
+            "rango_semana_label": rango_semana_label,
+            "dia_label": dia_label,
+            "tipos": tipos,
+            "tipo_id": tipo_id,
+            "espacios": espacios,
+            "espacio_actual": espacio_actual,
+            "encabezados_semana": encabezados_semana,
+            "filas_semana": filas_semana,
+            "filas_dia": filas_dia,
+            "primer_evento": primer_evento,
+            "viene_de_busqueda": bool(request.GET.get("espacio")),
+            **_barra(request.user),
+        },
     )
 
 
@@ -376,3 +710,43 @@ def mis_solicitudes(request):
 def salir(request):
     logout(request)
     return redirect("login")
+
+
+@login_required
+@require_POST
+def cancelar_reserva(request, reserva_id):
+    """
+    HU07: Cancelar una reserva propia.
+    """
+
+    with transaction.atomic():
+
+        reserva = get_object_or_404(
+            Reserva.objects.select_for_update(),
+            pk=reserva_id,
+            usuario=request.user
+        )
+
+        if reserva.inicio <= timezone.now():
+            messages.error(
+                request,
+                "No puedes cancelar una reserva que ya comenzó."
+            )
+            return redirect("mis_solicitudes")
+
+        try:
+            reserva.cancelar(request.user)
+
+        except ValidationError as error:
+            messages.error(
+                request,
+                "; ".join(error.messages)
+            )
+
+        else:
+            messages.success(
+                request,
+                "La reserva se canceló correctamente."
+            )
+
+    return redirect("mis_solicitudes")
