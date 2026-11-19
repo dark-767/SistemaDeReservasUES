@@ -121,6 +121,28 @@ class RechazoDeSolicitudTests(TestCase):
         self.assertContains(respuesta, "Rechazar")
         self.assertNotContains(respuesta, "Ya rechazada")
 
+    def test_el_administrador_no_ve_reservas_cuyo_horario_ya_paso(self):
+        pasado = timezone.now() - timedelta(days=1)
+        pasada = self.crear_reserva(
+            estado=Reserva.Estado.APROBADA,
+            inicio=pasado.replace(hour=7, minute=0, second=0, microsecond=0),
+            fin=pasado.replace(hour=8, minute=40, second=0, microsecond=0),
+        )
+        self.crear_reserva(
+            estado=Reserva.Estado.APROBADA,
+            inicio=combinar(self.fecha + timedelta(days=1), self.bloque.hora_inicio),
+            fin=combinar(self.fecha + timedelta(days=1), self.bloque.hora_fin),
+        )
+        self.client.force_login(self.admin)
+        respuesta = self.client.get(reverse("solicitudes"))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, "1 solicitud pendiente")
+        self.assertNotContains(respuesta, reverse("rechazar_solicitud", args=[pasada.pk]))
+        self.assertEqual(
+            self.client.get(reverse("rechazar_solicitud", args=[pasada.pk])).status_code,
+            404,
+        )
+
     def test_el_administrador_abre_el_formulario_de_rechazo(self):
         reserva = self.crear_reserva()
         self.client.force_login(self.admin)

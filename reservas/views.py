@@ -303,16 +303,20 @@ def confirmacion_reserva(request, pk):
     )
 
 
+def _solicitudes_rechazables():
+    """Activas cuyo horario aún no termina. Las del pasado no se pueden rechazar."""
+    return Reserva.objects.filter(
+        estado__in=Reserva.ESTADOS_ACTIVOS,
+        fin__gt=timezone.now(),
+    ).select_related("usuario", "espacio", "motivo", "bloque_horario")
+
+
 @solo_admin
 def listar_solicitudes(request):
     """HU04: el administrador ve las solicitudes que todavía puede rechazar."""
     solicitudes = [
         _presentar(reserva)
-        for reserva in (
-            Reserva.objects.filter(estado__in=Reserva.ESTADOS_ACTIVOS)
-            .select_related("usuario", "espacio", "motivo", "bloque_horario")
-            .order_by("inicio")
-        )
+        for reserva in _solicitudes_rechazables().order_by("inicio")
     ]
     return render(
         request,
@@ -324,11 +328,7 @@ def listar_solicitudes(request):
 @solo_admin
 def rechazar_solicitud(request, pk):
     """HU04: selecciona una solicitud activa y la rechaza con motivo."""
-    reserva = get_object_or_404(
-        Reserva.objects.select_related("usuario", "espacio", "motivo", "bloque_horario"),
-        pk=pk,
-        estado__in=Reserva.ESTADOS_ACTIVOS,
-    )
+    reserva = get_object_or_404(_solicitudes_rechazables(), pk=pk)
     _presentar(reserva)
     if request.method == "POST":
         form = RechazoReservaForm(request.POST)
