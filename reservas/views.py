@@ -354,6 +354,7 @@ def rechazar_solicitud(request, pk):
         request,
         "reservas/rechazar_solicitud.html",
         {"form": form, "reserva": reserva, **_barra(request.user, "solicitudes")},
+    )
 
 @login_required
 def consultar_solicitudes(request):
@@ -527,6 +528,8 @@ def mis_solicitudes(request):
         request,
         "reservas/mis_solicitudes.html",
         {"reservas": reservas, **_barra(request.user, "mis_solicitudes")},
+    )
+
 def consultar_calendario(request):
     """Consulta y renderiza el calendario real por semana o día desde PostgreSQL."""
     vista = request.GET.get("vista", "semana")
