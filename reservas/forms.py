@@ -107,3 +107,26 @@ class SolicitudReservaForm(forms.Form):
                     self.add_error(destino, error)
             return
         self.add_error(None, exc)
+
+
+class RechazoReservaForm(forms.Form):
+    """HU04: el administrador debe indicar por qué rechaza la solicitud."""
+
+    motivo = forms.CharField(
+        label="Motivo del rechazo",
+        widget=forms.Textarea(
+            attrs={
+                "class": "textarea",
+                "rows": 3,
+                "id": "motivo",
+                "placeholder": "Explica por qué se rechaza y, si puedes, sugiere una alternativa.",
+            }
+        ),
+        error_messages={"required": "Debes indicar el motivo del rechazo."},
+    )
+
+    def clean_motivo(self):
+        motivo = (self.cleaned_data.get("motivo") or "").strip()
+        if not motivo:
+            raise ValidationError("Debes indicar el motivo del rechazo.")
+        return motivo

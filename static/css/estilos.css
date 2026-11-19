@@ -186,9 +186,12 @@ svg {
   font-size: 13px;
 }
 
-.btn--block {
-  width: 100%;
-}
+.btn--sm { height: 34px; padding: 0 12px; font-size: 13px; }
+.btn--block { width: 100%; }
+.btn--danger { background: var(--danger); color: #fff; }
+.btn--danger:hover { background: #991b1b; }
+.btn--danger-ghost { color: var(--danger); }
+.btn--danger-ghost:hover { background: var(--danger-soft); color: var(--danger); }
 
 /* ---------- Campos de formulario ---------- */
 .field {
@@ -377,6 +380,12 @@ svg {
   flex-wrap: wrap;
   gap: 8px;
 }
+.badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.badge--success { background: var(--success-soft); color: var(--success); }
+.badge--warning { background: var(--warning-soft); color: var(--warning); }
+.badge--neutral { background: #f3f4f6; color: #4b5563; }
+.badge--danger { background: var(--danger-soft); color: var(--danger); }
+.badge--plain::before { display: none; }
 
 .slot {
   display: inline-flex;
@@ -863,6 +872,48 @@ svg {
   gap: 8px;
 }
 
+.muted { font-size: 12px; color: var(--text-muted); }
+.person { display: flex; align-items: center; gap: 10px; }
+.person .avatar { width: 32px; height: 32px; font-size: 12px; }
+.person__name { font-weight: 600; color: var(--text); }
+
+.booking-list { display: grid; gap: 12px; }
+.booking {
+  display: grid; grid-template-columns: 72px minmax(0, 1fr) auto;
+  align-items: center; gap: 20px; padding: 20px 24px;
+}
+.booking__date {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 72px; border-radius: var(--radius); line-height: 1.1;
+  background: var(--primary-soft); color: var(--primary);
+}
+.booking__day { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.booking__month { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.booking__body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.booking__title { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; }
+.booking__actions { display: flex; gap: 8px; }
+.booking--off .booking__date { background: #f3f4f6; color: var(--text-muted); }
+.booking--off .booking__name { color: var(--text-muted); }
+
+.note {
+  display: flex; align-items: flex-start; gap: 10px; margin-top: 4px; padding: 10px 12px;
+  border: 1px solid #fecaca; border-radius: var(--radius-sm);
+  background: var(--danger-soft); color: var(--text-soft); font-size: 13px;
+}
+.note .icon { margin-top: 1px; color: var(--danger); }
+.note strong { color: var(--danger); }
+
+.empty { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 56px 24px; text-align: center; }
+.empty[hidden] { display: none; }
+.empty__icon {
+  display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 4px;
+  border-radius: 16px; background: var(--primary-soft); color: var(--primary);
+}
+.empty__icon .icon { width: 26px; height: 26px; }
+.empty h2 { font-size: 17px; font-weight: 600; }
+.empty p { max-width: 380px; font-size: 14px; color: var(--text-muted); }
+.empty .btn { margin-top: 8px; }
+
 /* ---------- Formulario de espacio ---------- */
 .form-grid {
   display: grid;
@@ -1094,36 +1145,18 @@ svg {
 }
 
 @media (max-width: 560px) {
-  .filters {
-    grid-template-columns: 1fr;
-    padding: 20px;
-  }
-
-  .row {
-    grid-template-columns: 1fr;
-  }
-
-  .page-title {
-    font-size: 24px;
-  }
-
-  .card__body {
-    padding: 20px;
-  }
-
-  .hide-sm {
-    display: none;
-  }
-
-  .form-actions .btn {
-    flex: 1;
-  }
-
-  .toolbar .field--search,
-  .toolbar .field--select {
-    flex: 1 1 100%;
-    max-width: none;
-  }
+  .filters { grid-template-columns: 1fr; padding: 20px; }
+  .row { grid-template-columns: 1fr; }
+  .page-title { font-size: 24px; }
+  .card__body { padding: 20px; }
+  .hide-sm { display: none; }
+  .form-actions .btn { flex: 1; }
+  .toolbar .field--search, .toolbar .field--select { flex: 1 1 100%; max-width: none; }
+  .booking { grid-template-columns: 56px minmax(0, 1fr); gap: 14px; padding: 16px; }
+  .booking__date { height: 56px; }
+  .booking__day { font-size: 20px; }
+  .booking__actions { grid-column: 1 / -1; }
+  .booking__actions .btn { flex: 1; }
 }
 
 /* ---------- Validación y confirmación de registro ---------- */

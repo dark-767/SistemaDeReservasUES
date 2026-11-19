@@ -21,8 +21,13 @@ def inicio(request):
 
     if not request.user.is_authenticated:
         return redirect("login")
-
-    return render(request, "usuarios/index.html")
+    
+    #Si ya hay admin y el usuario inicio sesión, se renderiza su vista principal
+    return render(
+        request,
+        "usuarios/index.html",
+        {"es_admin": getattr(request.user, "es_admin", False)},
+    )
 
 
 

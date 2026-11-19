@@ -1,0 +1,59 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rechazar solicitud · ReservaEspacios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+</head>
+<body>
+  {% include "reservas/includes/topbar.html" %}
+
+  <main class="page">
+    <div>
+      <p class="breadcrumb"><a href="{% url 'solicitudes' %}">Solicitudes</a> / Rechazar</p>
+      <h1 class="page-title">Rechazar solicitud</h1>
+      <p class="page-subtitle">Indica el motivo. El usuario lo verá en Mis solicitudes y el horario quedará libre.</p>
+    </div>
+
+    <form class="card card__body stack" action="{% url 'rechazar_solicitud' reserva.pk %}" method="post" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert--error" role="alert">
+          {% for error in form.non_field_errors %}<span>{{ error }}</span>{% endfor %}
+        </div>
+      {% endif %}
+
+      <article class="card card__body">
+        <p class="space-card__label">Solicitud</p>
+        <h2 class="space-card__title">{{ reserva.espacio.nombre }}</h2>
+        <div class="meta">
+          <span>{{ reserva.nombre_solicitante }}</span>
+          <span>{{ reserva.fecha_legible }}</span>
+          <span>{{ reserva.horario_legible }}</span>
+          <span>{{ reserva.cantidad_personas }} personas</span>
+          <span>{{ reserva.motivo_texto }}</span>
+        </div>
+        {% if reserva.motivo_detalle %}<p>{{ reserva.motivo_detalle }}</p>{% endif %}
+      </article>
+
+      <div class="field">
+        <label class="field__label" for="motivo">Motivo del rechazo</label>
+        <textarea class="textarea{% if form.motivo.errors %} input--error{% endif %}" id="motivo" name="motivo" rows="3" required placeholder="Explica por qué se rechaza y, si puedes, sugiere una alternativa.">{{ form.motivo.value|default_if_none:'' }}</textarea>
+        <p class="field__hint">Obligatorio. El usuario verá este mensaje al consultar el resultado de su solicitud.</p>
+        {% for error in form.motivo.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+      </div>
+
+      <div class="form-actions">
+        <a class="btn btn--secondary" href="{% url 'solicitudes' %}">Volver</a>
+        <button class="btn btn--danger" type="submit">Rechazar solicitud</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>
