@@ -20,6 +20,9 @@
     </a>
     <nav class="nav" aria-label="Principal">
       <a href="{% url 'buscar_disponibilidad' %}">Buscar espacios</a>
+      {% if es_admin %}
+      <a href="{% url 'solicitudes' %}">Solicitudes</a>
+      {% endif %}
       <a href="{% url 'mis_solicitudes' %}">Mis solicitudes</a>
       <a href="{% url 'calendario' %}" class="is-active" aria-current="page">Calendario</a>
     </nav>
@@ -134,6 +137,7 @@
                       data-fecha="{{ c.fecha }}"
                       data-horario="{{ c.horario }}"
                       data-motivo="{{ c.motivo }}"
+                      data-estado="{{ c.estado }}"
                     >
                       <strong>{{ c.titulo }}</strong>{{ c.subtitulo }}
                     </button>
@@ -167,6 +171,7 @@
                       data-fecha="{{ c.fecha }}"
                       data-horario="{{ c.horario }}"
                       data-motivo="{{ c.motivo }}"
+                      data-estado="{{ c.estado }}"
                     >
                       <strong>{{ c.titulo }}</strong>{{ c.subtitulo }}
                     </button>
@@ -202,6 +207,7 @@
             <div><dt>Fecha</dt><dd id="d-fecha">{{ primer_evento.fecha }}</dd></div>
             <div><dt>Horario</dt><dd id="d-horario">{{ primer_evento.horario }}</dd></div>
             <div><dt>Motivo</dt><dd id="d-motivo">{{ primer_evento.motivo }}</dd></div>
+            <div><dt>Estado</dt><dd id="d-estado">{{ primer_evento.estado }}</dd></div>
           </dl>
           <div class="detail__actions" id="d-propia" {% if primer_evento.tipo != 'mine' %}hidden{% endif %}>
             <a class="btn btn--secondary btn--block" href="{% url 'mis_solicitudes' %}">Ver en Mis solicitudes</a>
@@ -237,6 +243,8 @@
         document.getElementById('d-fecha').textContent = ev.dataset.fecha;
         document.getElementById('d-horario').textContent = ev.dataset.horario;
         document.getElementById('d-motivo').textContent = ev.dataset.motivo;
+        const estado = document.getElementById('d-estado');
+        if (estado) estado.textContent = ev.dataset.estado || '';
         const propia = document.getElementById('d-propia');
         const ajena = document.getElementById('d-ajena');
         if (propia) propia.hidden = t !== 'mine';

@@ -354,6 +354,7 @@ def rechazar_solicitud(request, pk):
         request,
         "reservas/rechazar_solicitud.html",
         {"form": form, "reserva": reserva, **_barra(request.user, "solicitudes")},
+    )
 
 @login_required
 def consultar_solicitudes(request):
@@ -527,6 +528,10 @@ def mis_solicitudes(request):
         request,
         "reservas/mis_solicitudes.html",
         {"reservas": reservas, **_barra(request.user, "mis_solicitudes")},
+    )
+
+
+@login_required
 def consultar_calendario(request):
     """Consulta y renderiza el calendario real por semana o día desde PostgreSQL."""
     vista = request.GET.get("vista", "semana")
@@ -579,7 +584,7 @@ def consultar_calendario(request):
         inicio_rango = _combinar(lunes, time.min)
         fin_rango = _combinar(sabado + timedelta(days=1), time.min)
         reservas_qs = Reserva.objects.filter(
-            estado=Reserva.Estado.APROBADA,
+            estado__in=Reserva.ESTADOS_ACTIVOS,
             inicio__lt=fin_rango,
             fin__gt=inicio_rango,
         )
@@ -591,13 +596,13 @@ def consultar_calendario(request):
         inicio_rango = _combinar(fecha_base, time.min)
         fin_rango = _combinar(fecha_base + timedelta(days=1), time.min)
         reservas_qs = Reserva.objects.filter(
-            estado=Reserva.Estado.APROBADA,
+            estado__in=Reserva.ESTADOS_ACTIVOS,
             espacio__in=espacios,
             inicio__lt=fin_rango,
             fin__gt=inicio_rango,
         )
 
-    reservas = list(reservas_qs.select_related("espacio", "motivo", "bloque_horario"))
+    reservas = list(reservas_qs.select_related("espacio", "motivo", "bloque_horario").order_by("inicio"))
 
     def _construir_celda(espacio_obj, fecha_dia, bloque_obj):
         b_ini = _combinar(fecha_dia, bloque_obj.hora_inicio)
@@ -637,6 +642,7 @@ def consultar_calendario(request):
                 "fecha_iso": fecha_dia.isoformat(),
                 "horario": _etiqueta_horario(match),
                 "motivo": match.motivo.nombre if match.motivo_id else (match.motivo_detalle or "Reserva"),
+                "estado": match.get_estado_display(),
             }
         return {
             "ocupado": False,

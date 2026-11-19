@@ -11,7 +11,7 @@
       <a href="{% url 'solicitudes' %}"{% if nav_activa == "solicitudes" %} class="is-active" aria-current="page"{% endif %}>Solicitudes</a>
       {% endif %}
       <a href="{% url 'mis_solicitudes' %}"{% if nav_activa == "mis_solicitudes" %} class="is-active" aria-current="page"{% endif %}>Mis solicitudes</a>
-      <a href="#">Calendario</a>
+      <a href="{% url 'calendario' %}"{% if nav_activa == "calendario" %} class="is-active" aria-current="page"{% endif %}>Calendario</a>
     </nav>
     <div class="user">
       <span class="avatar" aria-hidden="true">{{ iniciales }}</span>
